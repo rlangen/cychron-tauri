@@ -1,0 +1,3 @@
+[submodule "src"]
+	path = src
+	url = https://github.com/rlangen/cychron-yew-src/tree/3285f19a386913e0a55847e4199b541e0fb01434
