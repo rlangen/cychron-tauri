@@ -37,33 +37,37 @@ impl Component for Row {
                 style="
                     display: flex; 
                     flex-direction: column; 
-                    align-items: left;
+                    align-items: flex-start;
             ">
-            <Step key={ctx.props().uid.clone()} index={ctx.props().index.clone()} action_name={ctx.props().action_name.clone()}/>
-            <Transition transitions={ctx.props().transitions.clone()}/>
-            <button
-                style="
-                    width: 20px; 
-                    height: 20px;
-                    border-radius: 50%;
-                    border: none;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: blue; 
-                    margin-left: 15px;"
-                    onclick={on_clicked}
-            >
-                <span
+                <Step key={ctx.props().uid.clone()} index={ctx.props().index.clone()} action_name={ctx.props().action_name.clone()}/>
+                <Transition transitions={ctx.props().transitions.clone()}/>
+                <button
                     style="
-                        color: white;
-                        font-size: 20px;
-                        font-weight: bold;
-                ">
-                    {"+"}
-                </span>
-            </button>
-        </div>
+                        width: 20px; 
+                        height: 20px;
+                        border-radius: 50%;
+                        border: none;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background-color: blue;                        
+                        padding: 0px;
+                        margin: 0px;
+                        margin-left: 15px;"
+                        onclick={on_clicked}
+                >
+                    <span
+                        style="
+                            color: white;
+                            font-size: 20px;
+                            font-weight: bold;
+                            padding: 0px;
+                            margin: 0px;
+                    ">
+                        {"+"}
+                    </span>
+                </button>
+            </div>
         }
     }
 }
