@@ -64,6 +64,7 @@ impl Component for Sequence {
                             <Intersection
                                 branches={intersection_props.branches.clone()}
                                 intersection_type={intersection_props.intersection_type.clone()}
+                                id={intersection_props.id.clone()}
                             />
                         },
                     }

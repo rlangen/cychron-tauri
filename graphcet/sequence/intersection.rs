@@ -7,14 +7,20 @@ use crate::graphcet::sequence::{Sequence, SequenceProps};
 pub struct IntersectionProps {
     pub branches: Vec<SequenceProps>,
     pub intersection_type: IntersectionType,
+    pub id: usize,
 }
 
-#[derive(Clone, PartialEq, Debug, Default)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum IntersectionType {
     ParallelBranches(TransitionProps),
-    #[default]
     AlternativeBranches,
     LoopBranches,
+}
+
+impl Default for IntersectionType {
+    fn default() -> Self {
+        IntersectionType::ParallelBranches(TransitionProps::default())
+    }
 }
 
 pub struct Intersection {}
@@ -53,7 +59,10 @@ impl Component for Intersection {
                             </>
                         },
                         IntersectionType::AlternativeBranches => html! {
-                            <div style="height: 70px;"/>
+                            <div
+                                key={ctx.props().id}
+                                style={format!("width: {}px", line_width-48)}
+                                class="intersection__alternative-branch-line"/>
                         },
                         IntersectionType::LoopBranches => html! {
                             <div style="height: 70px;"/>
@@ -95,7 +104,13 @@ impl Component for Intersection {
                             </>
                         },
                         IntersectionType::AlternativeBranches => html! {
-                            <div style="height: 70px;"/>
+                            <>
+                                <div
+                                    key={ctx.props().id}
+                                    style={format!("width: {}px", line_width-48)}
+                                    class="intersection__alternative-branch-line"/>
+                                <div class="path__short"/>
+                            </>
                         },
                         IntersectionType::LoopBranches => html! {
                             <div style="height: 70px;"/>

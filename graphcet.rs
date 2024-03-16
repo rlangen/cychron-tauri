@@ -32,6 +32,7 @@ impl Component for Graphcet {
                     transitions: "X1".to_string(),
                 }),
                 Element::Intersection(sequence::intersection::IntersectionProps {
+                    id: 0,
                     intersection_type: sequence::intersection::IntersectionType::ParallelBranches(
                         TransitionProps::default(),
                     ),
@@ -64,6 +65,66 @@ impl Component for Graphcet {
                             })],
                         },
                     ],
+                }),
+                Element::Intersection(sequence::intersection::IntersectionProps {
+                    id: 1,
+                    intersection_type:
+                        sequence::intersection::IntersectionType::AlternativeBranches,
+                    branches: vec![
+                        SequenceProps {
+                            elements: vec![
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                                Element::Step(sequence::step::StepProps {
+                                    index: 4,
+                                    action_name: "HorizontalCylPaP := 0".to_string(),
+                                }),
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                            ],
+                        },
+                        SequenceProps {
+                            elements: vec![
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                                Element::Step(sequence::step::StepProps {
+                                    index: 2,
+                                    action_name: "HorizontalCylPaP := 0".to_string(),
+                                }),
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                                Element::Step(sequence::step::StepProps {
+                                    index: 3,
+                                    action_name: "VerticalCylPaP := 0".to_string(),
+                                }),
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                            ],
+                        },
+                        SequenceProps {
+                            elements: vec![
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                                Element::Step(sequence::step::StepProps {
+                                    index: 4,
+                                    action_name: "HorizontalCylPaP := 0".to_string(),
+                                }),
+                                Element::Transition(sequence::transition::TransitionProps {
+                                    transitions: "X2".to_string(),
+                                }),
+                            ],
+                        },
+                    ],
+                }),
+                Element::Step(sequence::step::StepProps {
+                    index: 4,
+                    action_name: "HorizontalCylPaP := 0".to_string(),
                 }),
             ],
         };
