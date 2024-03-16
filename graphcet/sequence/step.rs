@@ -1,33 +1,34 @@
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
-pub struct Transition {
-    transitions: String,
-}
-
-#[derive(Clone, PartialEq, Properties, Default)]
-pub struct TransitionProps {
-    pub transitions: String,
+pub struct Step {
+    action_name: String,
 }
 
 pub enum Msg {
-    TransitionsUpdateEvent(String),
+    ActionNameUpdateEvent(String),
 }
 
-impl Component for Transition {
+#[derive(Clone, PartialEq, Properties, Default, Debug)]
+pub struct StepProps {
+    pub index: usize,
+    pub action_name: String,
+}
+
+impl Component for Step {
     type Message = Msg;
-    type Properties = TransitionProps;
+    type Properties = StepProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Transition {
-            transitions: _ctx.props().transitions.clone(),
+        Self {
+            action_name: _ctx.props().action_name.clone(),
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::TransitionsUpdateEvent(new_text) => {
-                self.transitions = new_text;
+            Msg::ActionNameUpdateEvent(new_text) => {
+                self.action_name = new_text;
                 return true;
             }
         }
@@ -40,40 +41,37 @@ impl Component for Transition {
                     display: flex; 
                     flex-direction: row; 
                     align-items: center;
-                    margin-left: 10px;
+                    margin-left: 0;
             ">
                 <div
                     style="
-                        display: flex; 
-                        flex-direction: column; 
+                        width: 44px; 
+                        height: 44px; 
+                        background-color: white;
+                        border-color: black;
+                        border-style: solid;
+                        border-width: 3px;
+                        margin: 0 0;
+                        display: flex;
                         align-items: center;
-                        margin-right: 5px
+                        justify-content: center;
                 ">
-                    <div
-                        style="
-                            width: 2px; 
-                            height: 30px; 
-                            background-color: black;" 
-                    />
-                    <div
-                        style="
-                            width: 30px; 
-                            height: 4px; 
-                            background-color: black;" 
-                    />
-                    <div
-                        style="
-                            width: 2px; 
-                            height: 30px; 
-                            background-color: black;" 
-                    />
+                    {ctx.props().index}
                 </div>
+                <div
+                    style="
+                        width: 30px; 
+                        height: 3px; 
+                        background-color: black;" 
+                />
                 <div
                     style="
                         width: 200px;
                         height: 30px; 
-                        background-color: transparent;
-                        border-style: none;
+                        background-color: white;
+                        border-color: black;
+                        border-style: solid;
+                        border-width: 3px;
                         margin: 0 0;
                         display: flex;
                         align-items: center;
@@ -92,10 +90,10 @@ impl Component for Transition {
                             resize: none;
                             auto-correct: off;"
                         spellcheck="false"
-                        value={self.transitions.clone()}
+                        value={self.action_name.clone()}
                         oninput={ctx.link().callback(|e: InputEvent| {
                             let input: HtmlTextAreaElement = e.target_unchecked_into();
-                            Msg::TransitionsUpdateEvent(input.value())
+                            Msg::ActionNameUpdateEvent(input.value())
                         })}
                     />
                 </div>
