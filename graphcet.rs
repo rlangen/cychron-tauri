@@ -3,6 +3,8 @@ use yew::prelude::*;
 mod sequence;
 use sequence::{Element, Sequence, SequenceProps};
 
+use self::sequence::transition::TransitionProps;
+
 pub struct Graphcet {
     sequence: SequenceProps,
 }
@@ -30,7 +32,9 @@ impl Component for Graphcet {
                     transitions: "X1".to_string(),
                 }),
                 Element::Intersection(sequence::intersection::IntersectionProps {
-                    intersection_type: sequence::intersection::IntersectionType::ParallelBranches,
+                    intersection_type: sequence::intersection::IntersectionType::ParallelBranches(
+                        TransitionProps::default(),
+                    ),
                     branches: vec![
                         SequenceProps {
                             elements: vec![Element::Step(sequence::step::StepProps {

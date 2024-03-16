@@ -1,5 +1,5 @@
 use web_sys::HtmlTextAreaElement;
-use yew::prelude::*;
+use yew::{html::IntoPropValue, prelude::*};
 
 pub struct Transition {
     transitions: String,
@@ -8,6 +8,12 @@ pub struct Transition {
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct TransitionProps {
     pub transitions: String,
+}
+impl IntoPropValue<String> for TransitionProps {
+    fn into_prop_value(self) -> String {
+        // Convert self into a Vec<sequence::Element> here
+        self.transitions
+    }
 }
 
 pub enum Msg {

@@ -1,5 +1,6 @@
 use yew::prelude::*;
 
+use super::transition::{Transition, TransitionProps};
 use crate::graphcet::sequence::{Sequence, SequenceProps};
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
@@ -10,8 +11,8 @@ pub struct IntersectionProps {
 
 #[derive(Clone, PartialEq, Debug, Default)]
 pub enum IntersectionType {
+    ParallelBranches(TransitionProps),
     #[default]
-    ParallelBranches,
     AlternativeBranches,
     LoopBranches,
 }
@@ -36,7 +37,7 @@ impl Component for Intersection {
             <>
                 {
                     match ctx.props().intersection_type {
-                        IntersectionType::ParallelBranches => html! {
+                        IntersectionType::ParallelBranches(_) => html! {
                             <>
                                 <div
                                     style={format!("
@@ -59,46 +60,25 @@ impl Component for Intersection {
                         },
                     }
                 }
-                <div style="
-                    display: inline-flex;
-                    flex_direction: column;
-                    align_items: left;
-                    margin-left: 0px;
-                ">
+                <div class="intersection__grid-container">
                     { for ctx.props().branches.iter().enumerate().map(|(index, item)| {
                         html! {
-                            <div
-                                style="
-                                    display: flex;
-                                    flex_direction: row;
-                                    align_items: left;">
-                                if index != 0 {
-                                    <div style="width: 70px;"/>
-                                }
-                                <div>
-                                    <div
-                                        style="
-                                            width: 2px; 
-                                            height: 15px;
-                                            margin-left: 24px; 
-                                            background-color: black;" />
+                            <div class="intersection__grid-item">
+                                <div class="intersection__content-wrapper">
+                                    <div class="path__short"/>
                                     <Sequence
                                         key={index.clone()}
                                         elements={item.elements.clone()} />
-                                    <div
-                                        style="
-                                            width: 2px; 
-                                            height: 100%;
-                                            margin-left: 24px; 
-                                            background-color: black;" />
                                 </div>
+                                <div class="intersection__vertical-fill-line"/>
+                                <div class="path__short"/>
                             </div>
                         }
                     })}
                 </div>
                 {
-                    match ctx.props().intersection_type {
-                        IntersectionType::ParallelBranches => html! {
+                    match &ctx.props().intersection_type {
+                        IntersectionType::ParallelBranches(transition_props) => html! {
                             <>
                                 <div
                                     style={format!("
@@ -111,6 +91,7 @@ impl Component for Intersection {
                                         height: 2px;
                                         width: {}px;
                                         background-color: black;", line_width)}/>
+                                <Transition transitions={transition_props.clone()}/>
                             </>
                         },
                         IntersectionType::AlternativeBranches => html! {
