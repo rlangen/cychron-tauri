@@ -18,11 +18,14 @@
 }
 
 .container {
+  width: fit-content;
+  height: auto;
   margin: 0;
-  padding-top: 10vh;
+  /* padding-top: 10vh; */
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: left;
   text-align: center;
 }
 

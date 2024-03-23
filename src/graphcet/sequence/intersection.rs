@@ -14,7 +14,8 @@ pub struct IntersectionProps {
 pub enum IntersectionType {
     ParallelBranches(TransitionProps),
     AlternativeBranches,
-    LoopBranches,
+    /// First transition exits loop, second continues loop
+    LoopBranches(TransitionProps, TransitionProps),
 }
 
 impl Default for IntersectionType {
@@ -64,13 +65,16 @@ impl Component for Intersection {
                                 style={format!("width: {}px", line_width-48)}
                                 class="intersection__alternative-branch-line"/>
                         },
-                        IntersectionType::LoopBranches => html! {
-                            <div style="height: 70px;"/>
+                        IntersectionType::LoopBranches(_, _) => html! {
+                            <div
+                                key={ctx.props().id}
+                                style={format!("width: {}px", line_width-48+404)}
+                                class="intersection__alternative-branch-line"/>
                         },
                     }
                 }
                 <div class="intersection__grid-container">
-                    { for ctx.props().branches.iter().enumerate().map(|(index, item)| {
+                    {for ctx.props().branches.iter().enumerate().map(|(index, item)| {
                         html! {
                             <div class="intersection__grid-item">
                                 <div class="intersection__content-wrapper">
@@ -84,6 +88,17 @@ impl Component for Intersection {
                             </div>
                         }
                     })}
+                    {match &ctx.props().intersection_type {
+                        IntersectionType::LoopBranches(_, continue_transition) => html! {
+                            <div class="container">
+                                <div class="path__dynamic"/>
+                                <Transition transitions={continue_transition.clone()}/>
+                                <div class="path__triangle_arrow_up"/>
+                                <div class="path__short"/>
+                            </div>
+                        },
+                        _ => html! {}
+                    }}
                 </div>
                 {
                     match &ctx.props().intersection_type {
@@ -112,8 +127,15 @@ impl Component for Intersection {
                                 <div class="path__short"/>
                             </>
                         },
-                        IntersectionType::LoopBranches => html! {
-                            <div style="height: 70px;"/>
+                        IntersectionType::LoopBranches(exit_transition, continue_transition) => html! {
+                            <>
+                                <div
+                                    key={ctx.props().id}
+                                    style={format!("width: {}px", line_width-48+404-50)}
+                                    class="intersection__alternative-branch-line"/>
+
+                                <Transition transitions={exit_transition.clone()}/>
+                            </>
                         },
                     }
                 }
