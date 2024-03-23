@@ -5,7 +5,7 @@
 .path__short {
   width: var(--paths__line-width);
   height: 15px;
-  margin-left: 24px;
+  /* margin-left: 24px; */
   background-color: black;
 }
 

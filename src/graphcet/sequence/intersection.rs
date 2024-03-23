@@ -94,7 +94,7 @@ impl Component for Intersection {
                                 <div class="path__dynamic"/>
                                 <Transition transitions={continue_transition.clone()}/>
                                 <div class="path__triangle_arrow_up"/>
-                                <div class="path__short"/>
+                                <div class="path__short" style="margin: 24px"/>
                             </div>
                         },
                         _ => html! {}

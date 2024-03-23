@@ -41,62 +41,14 @@ impl Component for Transition {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
-            <div
-                style="
-                    display: flex; 
-                    flex-direction: row; 
-                    align-items: center;
-                    margin-left: 10px;
-            ">
-                <div
-                    style="
-                        display: flex; 
-                        flex-direction: column; 
-                        align-items: center;
-                        margin-right: 5px
-                ">
-                    <div
-                        style="
-                            width: 2px; 
-                            height: 15px; 
-                            background-color: black;" 
-                    />
-                    <div
-                        style="
-                            width: 30px; 
-                            height: 4px; 
-                            background-color: black;" 
-                    />
-                    <div
-                        style="
-                            width: 2px; 
-                            height: 30px; 
-                            background-color: black;" 
-                    />
+            <div class="transition__container">
+                <div class="transition__vertContainer">
+                    <div class="path__short"/>
+                    <div class="transition__bar"/>
+                    <div class="path__short"/>
                 </div>
-                <div
-                    style="
-                        width: 200px;
-                        height: 30px; 
-                        background-color: transparent;
-                        border-style: none;
-                        margin: 0 0;
-                        display: flex;
-                        align-items: center;
-                ">
-                    <textarea
-                        style="
-                            width: 100%;
-                            height: 90%;
-                            border: none;
-                            background-color: transparent;
-                            font-size: 15px;
-                            font-weight: normal;
-                            text-align: left;
-                            padding-left: 5px;
-                            padding-top: 5px;
-                            resize: none;
-                            auto-correct: off;"
+                <div class="transition__name-field">
+                    <textarea class="transition__name-field-text"
                         spellcheck="false"
                         value={self.transitions.clone()}
                         oninput={ctx.link().callback(|e: InputEvent| {
