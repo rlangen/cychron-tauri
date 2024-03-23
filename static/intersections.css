@@ -1,0 +1,29 @@
+.intersection__grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, max-content));
+  gap: 70px;
+  position: relative;
+}
+
+.intersection__grid-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.intersection__content-wrapper {
+  flex-grow: 0;
+}
+
+.intersection__vertical-fill-line {
+  width: 2px;
+  background-color: black;
+  margin-left: 24px;
+  flex-grow: 1;
+}
+
+.intersection__alternative-branch-line {
+  height: 2px;
+  background-color: black;
+  margin-left: 24px;
+  flex-grow: 0;
+}
