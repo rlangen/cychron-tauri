@@ -9,6 +9,8 @@ use transition::Transition;
 pub mod intersection;
 use intersection::Intersection;
 
+mod hover_control;
+
 #[derive(Clone, PartialEq, Debug)]
 pub enum Element {
     Step(step::StepProps),

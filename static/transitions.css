@@ -10,6 +10,11 @@
   flex-direction: column;
   align-items: center;
   margin-right: 5px;
+  position: relative;
+}
+.transition__vertContainer:hover .hover_control__container {
+  display: grid;
+  margin-left: 90px;
 }
 
 .transition__bar {

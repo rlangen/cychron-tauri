@@ -1,0 +1,57 @@
+.hover_control__container {
+  display: grid;
+  grid-template-columns: 20px 20px 20px;
+  grid-template-rows: 20px 20px;
+  gap: 0px;
+  display: none;
+  position: absolute;
+  width: 60px;
+  height: 40px;
+  background-color: white;
+  margin-left: 20px;
+}
+
+.hover_control__button {
+  width: 20px;
+  height: auto;
+  border-radius: 1px;
+  padding: 0px;
+}
+
+.hover_control__add-direction--right {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.hover_control__button--add-parallel {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.hover_control__button--add-alternative {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.hover_control__add-direction--down {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.hover_control__button--add-step {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.hover_control__button--add-delete {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.hover_control__add-direction {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+}

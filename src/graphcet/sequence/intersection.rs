@@ -127,7 +127,7 @@ impl Component for Intersection {
                                 <div class="path__short"/>
                             </>
                         },
-                        IntersectionType::LoopBranches(exit_transition, continue_transition) => html! {
+                        IntersectionType::LoopBranches(exit_transition, _) => html! {
                             <>
                                 <div
                                     key={ctx.props().id}

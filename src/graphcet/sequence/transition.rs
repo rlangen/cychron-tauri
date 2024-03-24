@@ -1,6 +1,9 @@
 use web_sys::HtmlTextAreaElement;
 use yew::{html::IntoPropValue, prelude::*};
 
+use hover_control::HoverControl;
+
+use super::hover_control;
 pub struct Transition {
     transitions: String,
 }
@@ -46,6 +49,7 @@ impl Component for Transition {
                     <div class="path__short"/>
                     <div class="transition__bar"/>
                     <div class="path__short"/>
+                    <HoverControl/>
                 </div>
                 <div class="transition__name-field">
                     <textarea class="transition__name-field-text"
