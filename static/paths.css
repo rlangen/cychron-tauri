@@ -5,8 +5,10 @@
 .path__short {
   width: var(--paths__line-width);
   height: 15px;
-  /* margin-left: 24px; */
   background-color: black;
+}
+.path__short--margin-left {
+  margin-left: 24px;
 }
 
 .path__dynamic {

@@ -78,13 +78,13 @@ impl Component for Intersection {
                         html! {
                             <div class="intersection__grid-item">
                                 <div class="intersection__content-wrapper">
-                                    <div class="path__short"/>
+                                    <div class="path__short path__short--margin-left"/>
                                     <Sequence
                                         key={index.clone()}
                                         elements={item.elements.clone()} />
                                 </div>
                                 <div class="intersection__vertical-fill-line"/>
-                                <div class="path__short"/>
+                                <div class="path__short path__short--margin-left"/>
                             </div>
                         }
                     })}
@@ -94,7 +94,7 @@ impl Component for Intersection {
                                 <div class="path__dynamic"/>
                                 <Transition transitions={continue_transition.clone()}/>
                                 <div class="path__triangle_arrow_up"/>
-                                <div class="path__short" style="margin: 24px"/>
+                                <div class="path__short path__short--margin-left"/>
                             </div>
                         },
                         _ => html! {}
@@ -124,7 +124,7 @@ impl Component for Intersection {
                                     key={ctx.props().id}
                                     style={format!("width: {}px", line_width-48)}
                                     class="intersection__alternative-branch-line"/>
-                                <div class="path__short"/>
+                                <div class="path__short path__short--margin-left"/>
                             </>
                         },
                         IntersectionType::LoopBranches(exit_transition, _) => html! {
