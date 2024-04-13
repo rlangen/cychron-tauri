@@ -1,5 +1,9 @@
 {
   "emmet.includeLanguages": {
     "rust": "html"
-  }
+  },
+  "rust-analyzer.linkedProjects": [
+    "./Cargo.toml",
+    "./Cargo.toml"
+  ]
 }

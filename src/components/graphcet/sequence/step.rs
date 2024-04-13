@@ -11,7 +11,7 @@ pub enum Msg {
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct StepProps {
-    pub index: usize,
+    pub id: u128,
     pub action_name: String,
 }
 
@@ -56,7 +56,7 @@ impl Component for Step {
                         align-items: center;
                         justify-content: center;
                 ">
-                    {ctx.props().index}
+                    {ctx.props().id}
                 </div>
                 <div
                     style="

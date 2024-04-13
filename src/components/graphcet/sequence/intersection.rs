@@ -1,13 +1,13 @@
 use yew::prelude::*;
 
 use super::transition::{Transition, TransitionProps};
-use crate::graphcet::sequence::{Sequence, SequenceProps};
+use crate::components::graphcet::sequence::{Sequence, SequenceProps};
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct IntersectionProps {
     pub branches: Vec<SequenceProps>,
     pub intersection_type: IntersectionType,
-    pub id: usize,
+    pub id: u128,
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -92,7 +92,11 @@ impl Component for Intersection {
                         IntersectionType::LoopBranches(_, continue_transition) => html! {
                             <div class="container">
                                 <div class="path__dynamic"/>
-                                <Transition transitions={continue_transition.clone()}/>
+                                <Transition
+                                    transitions={continue_transition.transitions.clone()}
+                                    id={continue_transition.id.clone()}
+                                    on_add_step={continue_transition.on_add_step.clone()}
+                                />
                                 <div class="path__triangle_arrow_up"/>
                                 <div class="path__short path__short--margin-left"/>
                             </div>
@@ -115,7 +119,11 @@ impl Component for Intersection {
                                         height: 2px;
                                         width: {}px;
                                         background-color: black;", line_width)}/>
-                                <Transition transitions={transition_props.clone()}/>
+                                <Transition
+                                    transitions={transition_props.transitions.clone()}
+                                    id={transition_props.id.clone()}
+                                    on_add_step={transition_props.on_add_step.clone()}
+                                />
                             </>
                         },
                         IntersectionType::AlternativeBranches => html! {
@@ -134,7 +142,11 @@ impl Component for Intersection {
                                     style={format!("width: {}px", line_width-48+404-50)}
                                     class="intersection__alternative-branch-line"/>
 
-                                <Transition transitions={exit_transition.clone()}/>
+                                <Transition
+                                    transitions={exit_transition.clone()}
+                                    id={exit_transition.id.clone()}
+                                    on_add_step={exit_transition.on_add_step.clone()}
+                                />
                             </>
                         },
                     }

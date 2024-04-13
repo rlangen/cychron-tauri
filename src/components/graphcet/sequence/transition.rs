@@ -10,7 +10,9 @@ pub struct Transition {
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct TransitionProps {
+    pub id: u128,
     pub transitions: String,
+    pub on_add_step: Callback<()>,
 }
 impl IntoPropValue<String> for TransitionProps {
     fn into_prop_value(self) -> String {
@@ -49,7 +51,10 @@ impl Component for Transition {
                     <div class="path__short"/>
                     <div class="transition__bar"/>
                     <div class="path__short"/>
-                    <HoverControl/>
+                    <HoverControl
+                        on_add_step={ctx.props().on_add_step.clone()}
+                        id={ctx.props().id.clone()}
+                    />
                 </div>
                 <div class="transition__name-field">
                     <textarea class="transition__name-field-text"

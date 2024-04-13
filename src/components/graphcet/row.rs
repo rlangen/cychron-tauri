@@ -9,7 +9,7 @@ pub struct Row;
 
 #[derive(Clone, PartialEq, Properties, Default)]
 pub struct RowProps {
-    pub uid: usize,
+    pub id: u128,
     pub on_clicked: Callback<usize>,
     pub index: usize,
     pub action_name: String,

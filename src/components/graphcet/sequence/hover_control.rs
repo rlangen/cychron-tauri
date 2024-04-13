@@ -1,13 +1,23 @@
-use yew::{html, Component, Context, Html};
+use yew::{html, Callback, Component, Context, Html, Properties};
+
+#[derive(Clone, PartialEq, Properties, Default, Debug)]
+pub struct HoverControlProps {
+    pub id: u128,
+    pub on_add_step: Callback<()>,
+}
 
 pub struct HoverControl;
 
 impl Component for HoverControl {
     type Message = ();
-    type Properties = ();
+    type Properties = HoverControlProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {}
+    }
+
+    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
+        false
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
@@ -25,7 +35,9 @@ impl Component for HoverControl {
                 <button class="hover_control__button hover_control__button--add-alternative">
                     { "A" }
                 </button>
-                <button class="hover_control__button hover_control__button--add-step">
+                <button
+                    class="hover_control__button hover_control__button--add-step"
+                    onclick={ctx.props().on_add_step.reform(|_| ())}>
                     { "S" }
                 </button>
                 <button class="hover_control__button hover_control__button--add-delete">

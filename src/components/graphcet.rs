@@ -1,5 +1,7 @@
 use yew::prelude::*;
 
+use crate::services::uuid_service::UuidService;
+
 mod sequence;
 use sequence::{Element, Sequence, SequenceProps};
 
@@ -18,56 +20,62 @@ impl Component for Graphcet {
         let sequence_props = SequenceProps {
             elements: vec![
                 Element::Step(sequence::step::StepProps {
-                    index: 0,
+                    id: UuidService::new_index(),
                     action_name: "HorizontalCylPaP := 1".to_string(),
                 }),
                 Element::Transition(sequence::transition::TransitionProps {
                     transitions: "X0".to_string(),
+                    id: UuidService::new_index(),
+                    on_add_step: Callback::from(|_| ()),
                 }),
                 Element::Step(sequence::step::StepProps {
-                    index: 1,
+                    id: UuidService::new_index(),
                     action_name: "VerticalCylPaP := 1".to_string(),
                 }),
                 Element::Transition(sequence::transition::TransitionProps {
                     transitions: "X1".to_string(),
+                    id: UuidService::new_index(),
+                    on_add_step: Callback::from(|_| ()),
                 }),
                 Element::Intersection(sequence::intersection::IntersectionProps {
-                    id: 0,
+                    id: UuidService::new_index(),
                     intersection_type: sequence::intersection::IntersectionType::ParallelBranches(
                         TransitionProps::default(),
                     ),
                     branches: vec![
                         SequenceProps {
                             elements: vec![Element::Step(sequence::step::StepProps {
-                                index: 4,
+                                id: UuidService::new_index(),
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             })],
                         },
                         SequenceProps {
                             elements: vec![
                                 Element::Step(sequence::step::StepProps {
-                                    index: 2,
+                                    id: UuidService::new_index(),
                                     action_name: "HorizontalCylPaP := 0".to_string(),
                                 }),
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                                 Element::Step(sequence::step::StepProps {
-                                    index: 3,
+                                    id: UuidService::new_index(),
                                     action_name: "VerticalCylPaP := 0".to_string(),
                                 }),
                             ],
                         },
                         SequenceProps {
                             elements: vec![Element::Step(sequence::step::StepProps {
-                                index: 4,
+                                id: UuidService::new_index(),
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             })],
                         },
                     ],
                 }),
                 Element::Intersection(sequence::intersection::IntersectionProps {
-                    id: 1,
+                    id: UuidService::new_index(),
                     intersection_type:
                         sequence::intersection::IntersectionType::AlternativeBranches,
                     branches: vec![
@@ -75,13 +83,17 @@ impl Component for Graphcet {
                             elements: vec![
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                                 Element::Step(sequence::step::StepProps {
-                                    index: 4,
+                                    id: UuidService::new_index(),
                                     action_name: "HorizontalCylPaP := 0".to_string(),
                                 }),
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                             ],
                         },
@@ -89,20 +101,26 @@ impl Component for Graphcet {
                             elements: vec![
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                                 Element::Step(sequence::step::StepProps {
-                                    index: 2,
+                                    id: UuidService::new_index(),
                                     action_name: "HorizontalCylPaP := 0".to_string(),
                                 }),
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                                 Element::Step(sequence::step::StepProps {
-                                    index: 3,
+                                    id: UuidService::new_index(),
                                     action_name: "VerticalCylPaP := 0".to_string(),
                                 }),
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                             ],
                         },
@@ -110,20 +128,24 @@ impl Component for Graphcet {
                             elements: vec![
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                                 Element::Step(sequence::step::StepProps {
-                                    index: 4,
+                                    id: UuidService::new_index(),
                                     action_name: "HorizontalCylPaP := 0".to_string(),
                                 }),
                                 Element::Transition(sequence::transition::TransitionProps {
                                     transitions: "X2".to_string(),
+                                    id: UuidService::new_index(),
+                                    on_add_step: Callback::from(|_| ()),
                                 }),
                             ],
                         },
                     ],
                 }),
                 Element::Intersection(sequence::intersection::IntersectionProps {
-                    id: 1,
+                    id: UuidService::new_index(),
                     intersection_type: sequence::intersection::IntersectionType::LoopBranches(
                         TransitionProps::default(),
                         TransitionProps::default(),
@@ -131,21 +153,23 @@ impl Component for Graphcet {
                     branches: vec![SequenceProps {
                         elements: vec![
                             Element::Step(sequence::step::StepProps {
-                                index: 4,
+                                id: UuidService::new_index(),
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             }),
                             Element::Transition(sequence::transition::TransitionProps {
                                 transitions: "X2".to_string(),
+                                id: UuidService::new_index(),
+                                on_add_step: Callback::from(|_| ()),
                             }),
                             Element::Step(sequence::step::StepProps {
-                                index: 4,
+                                id: UuidService::new_index(),
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             }),
                         ],
                     }],
                 }),
                 Element::Step(sequence::step::StepProps {
-                    index: 4,
+                    id: UuidService::new_index(),
                     action_name: "HorizontalCylPaP := 0".to_string(),
                 }),
             ],

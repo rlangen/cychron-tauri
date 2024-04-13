@@ -1,13 +1,10 @@
-use graphcet::Graphcet;
+mod components {
+    pub mod graphcet;
+}
+use components::graphcet::Graphcet;
 
-use yew::prelude::*;
-mod graphcet; // Import the module if `MyComponent` is in a separate file
-
-#[function_component]
-fn App() -> Html {
-    html! {
-        <Graphcet /> // Use `MyComponent` here
-    }
+mod services {
+    pub mod uuid_service;
 }
 
 fn main() {
