@@ -8,6 +8,9 @@ static LOG: Lazy<WebConsoleLogger> = Lazy::new(|| WebConsoleLogger::new());
 
 pub struct Log;
 impl Log {
+    const SEPERATOR: &'static str = ": ";
+    const SEPERATOR_LEN: usize = Self::SEPERATOR.len();
+
     #[allow(dead_code)]
     pub fn error<T: ?Sized>(message: &str) {
         LOG.error(Self::concat_type_and_message::<T>(message).as_str());
@@ -36,6 +39,15 @@ impl Log {
     }
 
     fn concat_type_and_message<T: ?Sized>(message: &str) -> String {
-        format!("{}: {}", type_name::<T>(), message)
+        let type_string = type_name::<T>();
+
+        let mut result =
+            String::with_capacity(type_string.len() + Self::SEPERATOR_LEN + message.len());
+
+        result.push_str(type_string);
+        result.push_str(Self::SEPERATOR);
+        result.push_str(message);
+
+        result
     }
 }
