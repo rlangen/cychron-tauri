@@ -4,6 +4,7 @@ mod components {
 use components::graphcet::Graphcet;
 
 mod services {
+    pub mod logging_service;
     pub mod uuid_service;
 }
 

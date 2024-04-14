@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::services::uuid_service::UuidService;
+use crate::services::{logging_service::Log, uuid_service::UuidService};
 
 mod sequence;
 use sequence::{Element, Sequence, SequenceProps};
@@ -178,10 +178,12 @@ impl Component for Graphcet {
             sequence: sequence_props,
         }
     }
+
     fn view(&self, _ctx: &Context<Self>) -> Html {
+        Log::info::<Graphcet>("Rendering Graphcet");
         html! {
             <div class="parent">
-                <Sequence elements={self.sequence.clone()}/>
+                    <Sequence elements={self.sequence.clone()}/>
             </div>
         }
     }

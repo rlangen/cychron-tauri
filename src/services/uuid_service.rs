@@ -1,5 +1,7 @@
 use uuid::{NoContext, Timestamp};
 
+use super::logging_service::Log;
+
 pub struct UuidService;
 
 impl UuidService {
@@ -14,7 +16,10 @@ impl UuidService {
                 let ts = Timestamp::from_unix(NoContext, seconds, nanos);
                 id = uuid::Uuid::new_v7(ts).as_u128();
             }
-            None => id = 0,
+            None => {
+                Log::warn::<UuidService>("Failed to get current time. Using random UUID instead.");
+                id = uuid::Uuid::new_v4().as_u128();
+            }
         }
 
         id
