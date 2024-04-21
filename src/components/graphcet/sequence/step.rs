@@ -56,7 +56,7 @@ impl Component for Step {
                         align-items: center;
                         justify-content: center;
                 ">
-                    {ctx.props().id}
+                    // {ctx.props().id}
                 </div>
                 <div
                     style="

@@ -9,7 +9,7 @@ use transition::Transition;
 pub mod intersection;
 use intersection::Intersection;
 
-use crate::services::uuid_service::UuidService;
+use crate::services::{logging_service::Log, uuid_service::UuidService};
 
 mod hover_control;
 
@@ -59,12 +59,12 @@ impl Component for Sequence {
 
     fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         match _msg {
-            SequenceMsg::AddStep(step_id) => {
+            SequenceMsg::AddStep(transition_id) => {
                 if let Some(pos) = _ctx
                     .props()
                     .elements
                     .iter()
-                    .position(|x| step_id == x.get_id())
+                    .position(|x| transition_id == x.get_id())
                 {
                     let id = UuidService::new_index();
                     let new_step = Element::Step(step::StepProps {
@@ -72,9 +72,19 @@ impl Component for Sequence {
                         action_name: "".to_string(),
                     });
                     self.elements.insert(pos + 1, new_step);
+
+                    let id = UuidService::new_index();
+                    let new_transition = Element::Transition(transition::TransitionProps {
+                        id,
+                        transitions: "".to_string(),
+                        on_add_step: _ctx.link().callback(move |_| SequenceMsg::AddStep(id)),
+                    });
+                    self.elements.insert(pos + 2, new_transition);
+
                     return true;
                 }
-                todo!("ERROR: Transition not found")
+                Log::error::<Self>("Failed to add step. Could't find transition to append to.");
+                return false;
             }
         }
     }
