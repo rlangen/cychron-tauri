@@ -27,3 +27,13 @@
   margin-left: 24px;
   flex-grow: 0;
 }
+
+.intersection__hover-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.intersection__hover-container:hover .hover_control__container {
+  display: grid;
+  margin-left: 40px;
+}

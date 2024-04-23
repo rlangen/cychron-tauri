@@ -12,7 +12,7 @@ pub struct Transition {
 pub struct TransitionProps {
     pub id: u128,
     pub transitions: String,
-    pub on_add_step: Callback<()>,
+    pub on_add_step: Callback<u128>,
 }
 impl IntoPropValue<String> for TransitionProps {
     fn into_prop_value(self) -> String {
@@ -45,6 +45,7 @@ impl Component for Transition {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        let id = ctx.props().id.clone();
         html! {
             <div class="transition__container">
                 <div class="transition__vertContainer">
@@ -52,7 +53,7 @@ impl Component for Transition {
                     <div class="transition__bar"/>
                     <div class="path__short"/>
                     <HoverControl
-                        on_add_step={ctx.props().on_add_step.clone()}
+                        on_add_step={ctx.props().on_add_step.reform(move |_| id)}
                         id={ctx.props().id.clone()}
                     />
                 </div>

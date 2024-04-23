@@ -1,11 +1,16 @@
 use yew::prelude::*;
 
-use crate::services::{logging_service::Log, uuid_service::UuidService};
+use crate::services::uuid_service::UuidService;
 
 mod sequence;
 use sequence::{Element, Sequence, SequenceProps};
 
 use self::sequence::transition::TransitionProps;
+
+pub enum GraphcetMsg {
+    /// (Transition id)
+    AddStepAndTransition(u128),
+}
 
 pub struct Graphcet {
     sequence: SequenceProps,
@@ -13,7 +18,7 @@ pub struct Graphcet {
 impl Graphcet {}
 
 impl Component for Graphcet {
-    type Message = ();
+    type Message = GraphcetMsg;
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
@@ -48,6 +53,7 @@ impl Component for Graphcet {
                                 id: UuidService::new_index(),
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             })],
+                            on_add_step_and_transition: Callback::from(|_| ()),
                         },
                         SequenceProps {
                             elements: vec![
@@ -65,12 +71,14 @@ impl Component for Graphcet {
                                     action_name: "VerticalCylPaP := 0".to_string(),
                                 }),
                             ],
+                            on_add_step_and_transition: Callback::from(|_| ()),
                         },
                         SequenceProps {
                             elements: vec![Element::Step(sequence::step::StepProps {
                                 id: UuidService::new_index(),
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             })],
+                            on_add_step_and_transition: Callback::from(|_| ()),
                         },
                     ],
                 }),
@@ -96,6 +104,7 @@ impl Component for Graphcet {
                                     on_add_step: Callback::from(|_| ()),
                                 }),
                             ],
+                            on_add_step_and_transition: Callback::from(|_| ()),
                         },
                         SequenceProps {
                             elements: vec![
@@ -123,6 +132,7 @@ impl Component for Graphcet {
                                     on_add_step: Callback::from(|_| ()),
                                 }),
                             ],
+                            on_add_step_and_transition: Callback::from(|_| ()),
                         },
                         SequenceProps {
                             elements: vec![
@@ -141,6 +151,7 @@ impl Component for Graphcet {
                                     on_add_step: Callback::from(|_| ()),
                                 }),
                             ],
+                            on_add_step_and_transition: Callback::from(|_| ()),
                         },
                     ],
                 }),
@@ -166,6 +177,7 @@ impl Component for Graphcet {
                                 action_name: "HorizontalCylPaP := 0".to_string(),
                             }),
                         ],
+                        on_add_step_and_transition: Callback::from(|_| ()),
                     }],
                 }),
                 Element::Step(sequence::step::StepProps {
@@ -173,6 +185,7 @@ impl Component for Graphcet {
                     action_name: "HorizontalCylPaP := 0".to_string(),
                 }),
             ],
+            on_add_step_and_transition: Callback::from(|_| ()),
         };
         Self {
             sequence: sequence_props,
@@ -180,11 +193,43 @@ impl Component for Graphcet {
     }
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
-        Log::info::<Graphcet>("Rendering Graphcet");
         html! {
             <div class="parent">
-                    <Sequence elements={self.sequence.clone()}/>
+                    <Sequence elements={self.sequence.clone()}
+                    on_add_step_and_transition={_ctx.link().callback(move |transition_id| GraphcetMsg::AddStepAndTransition(transition_id))}/>
             </div>
+        }
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            GraphcetMsg::AddStepAndTransition(transition_id) => {
+                if let Some(pos) = self
+                    .sequence
+                    .elements
+                    .iter()
+                    .position(|x| transition_id == x.get_id())
+                {
+                    let id = UuidService::new_index();
+                    let new_element = Element::Step(sequence::step::StepProps {
+                        id,
+                        action_name: "".to_string(),
+                    });
+                    self.sequence.elements.insert(pos + 1, new_element);
+
+                    let id = UuidService::new_index();
+                    let new_transition =
+                        Element::Transition(sequence::transition::TransitionProps {
+                            id,
+                            transitions: "".to_string(),
+                            on_add_step: ctx
+                                .link()
+                                .callback(move |_| GraphcetMsg::AddStepAndTransition(id)),
+                        });
+                    self.sequence.elements.insert(pos + 2, new_transition);
+                }
+                return true;
+            }
         }
     }
 }

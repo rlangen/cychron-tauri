@@ -1,14 +1,21 @@
 use yew::prelude::*;
 
-use super::transition::{Transition, TransitionProps};
-use crate::components::graphcet::sequence::{Sequence, SequenceProps};
+use self::parallel_intersection::OnAddStepAndTransitionData;
 
-#[derive(Clone, PartialEq, Properties, Default, Debug)]
-pub struct IntersectionProps {
-    pub branches: Vec<SequenceProps>,
-    pub intersection_type: IntersectionType,
-    pub id: u128,
-}
+use super::transition::TransitionProps;
+use crate::{
+    components::graphcet::sequence::{step::StepProps, Element, SequenceProps},
+    services::{logging_service::Log, uuid_service::UuidService},
+};
+
+mod parallel_intersection;
+use parallel_intersection::ParallelIntersection;
+
+mod alternative_intersection;
+use alternative_intersection::AlternativeIntersection;
+
+mod loop_intersection;
+use loop_intersection::LoopIntersection;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum IntersectionType {
@@ -18,20 +25,37 @@ pub enum IntersectionType {
     LoopBranches(TransitionProps, TransitionProps),
 }
 
+#[derive(Clone, PartialEq, Properties, Default, Debug)]
+pub struct IntersectionProps {
+    pub branches: Vec<SequenceProps>,
+    pub intersection_type: IntersectionType,
+    pub id: u128,
+}
 impl Default for IntersectionType {
     fn default() -> Self {
         IntersectionType::ParallelBranches(TransitionProps::default())
     }
 }
 
-pub struct Intersection {}
+pub enum IntersectionMsg {
+    /// (Branch index, Transition id)
+    AddStepAndTransition(OnAddStepAndTransitionData),
+    /// (Transition id)
+    AppendTransitionAndStep(usize),
+}
+
+pub struct Intersection {
+    branches: Vec<SequenceProps>,
+}
 
 impl Component for Intersection {
-    type Message = ();
+    type Message = IntersectionMsg;
     type Properties = IntersectionProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self {}
+        Self {
+            branches: _ctx.props().branches.clone(),
+        }
     }
     fn view(&self, ctx: &Context<Self>) -> Html {
         let line_width = if ctx.props().branches.len() > 1 {
@@ -42,116 +66,109 @@ impl Component for Intersection {
 
         html! {
             <>
-                {
-                    match ctx.props().intersection_type {
-                        IntersectionType::ParallelBranches(_) => html! {
-                            <>
-                                <div
-                                    style={format!("
-                                        height: 2px;
-                                        width: {}px;
-                                        background-color: black;", line_width)}/>
-                                <div style="height: 2px;"/>
-                                <div
-                                    style={format!("
-                                        height: 2px;
-                                        width: {}px;
-                                        background-color: black;", line_width)}/>
-                            </>
-                        },
-                        IntersectionType::AlternativeBranches => html! {
-                            <div
-                                key={ctx.props().id}
-                                style={format!("width: {}px", line_width-48)}
-                                class="intersection__alternative-branch-line"/>
-                        },
-                        IntersectionType::LoopBranches(_, _) => html! {
-                            <div
-                                key={ctx.props().id}
-                                style={format!("width: {}px", line_width-48+404)}
-                                class="intersection__alternative-branch-line"/>
-                        },
-                    }
-                }
-                <div class="intersection__grid-container">
-                    {for ctx.props().branches.iter().enumerate().map(|(index, item)| {
-                        html! {
-                            <div class="intersection__grid-item">
-                                <div class="intersection__content-wrapper">
-                                    <div class="path__short path__short--margin-left"/>
-                                    <Sequence
-                                        key={index.clone()}
-                                        elements={item.elements.clone()} />
-                                </div>
-                                <div class="intersection__vertical-fill-line"/>
-                                <div class="path__short path__short--margin-left"/>
-                            </div>
-                        }
-                    })}
-                    {match &ctx.props().intersection_type {
-                        IntersectionType::LoopBranches(_, continue_transition) => html! {
-                            <div class="container">
-                                <div class="path__dynamic"/>
-                                <Transition
-                                    transitions={continue_transition.transitions.clone()}
-                                    id={continue_transition.id.clone()}
-                                    on_add_step={continue_transition.on_add_step.clone()}
-                                />
-                                <div class="path__triangle_arrow_up"/>
-                                <div class="path__short path__short--margin-left"/>
-                            </div>
-                        },
-                        _ => html! {}
-                    }}
-                </div>
-                {
-                    match &ctx.props().intersection_type {
-                        IntersectionType::ParallelBranches(transition_props) => html! {
-                            <>
-                                <div
-                                    style={format!("
-                                        height: 2px;
-                                        width: {}px;
-                                        background-color: black;", line_width)}/>
-                                <div style="height: 2px;"/>
-                                <div
-                                    style={format!("
-                                        height: 2px;
-                                        width: {}px;
-                                        background-color: black;", line_width)}/>
-                                <Transition
-                                    transitions={transition_props.transitions.clone()}
-                                    id={transition_props.id.clone()}
-                                    on_add_step={transition_props.on_add_step.clone()}
-                                />
-                            </>
-                        },
-                        IntersectionType::AlternativeBranches => html! {
-                            <>
-                                <div
-                                    key={ctx.props().id}
-                                    style={format!("width: {}px", line_width-48)}
-                                    class="intersection__alternative-branch-line"/>
-                                <div class="path__short path__short--margin-left"/>
-                            </>
-                        },
-                        IntersectionType::LoopBranches(exit_transition, _) => html! {
-                            <>
-                                <div
-                                    key={ctx.props().id}
-                                    style={format!("width: {}px", line_width-48+404-50)}
-                                    class="intersection__alternative-branch-line"/>
-
-                                <Transition
-                                    transitions={exit_transition.clone()}
-                                    id={exit_transition.id.clone()}
-                                    on_add_step={exit_transition.on_add_step.clone()}
-                                />
-                            </>
-                        },
-                    }
-                }
+                {match &ctx.props().intersection_type {
+                    IntersectionType::ParallelBranches(exit_transition) => html! {
+                        <ParallelIntersection
+                                branches={self.branches.clone()}
+                                exit_transition={exit_transition.clone()}
+                                line_width={line_width.clone()}
+                                id={UuidService::new_index()}
+                                on_add_step_and_transition={ctx.link().callback(|on_add_step_and_transition_data|IntersectionMsg::AddStepAndTransition(on_add_step_and_transition_data))}
+                                on_append_transition_and_step={ctx.link().callback(|branch_index|IntersectionMsg::AppendTransitionAndStep(branch_index))}/>
+                    },
+                    IntersectionType::AlternativeBranches => html! {
+                        <AlternativeIntersection
+                            branches={self.branches.clone()}
+                            line_width={line_width.clone()}
+                            id={UuidService::new_index()}
+                            on_append_step_and_transition={
+                                ctx
+                                .link()
+                                .callback(|on_add_step_and_transition_data|IntersectionMsg::AddStepAndTransition(on_add_step_and_transition_data))}/>
+                    },
+                    IntersectionType::LoopBranches(continue_transition, exit_transition) => html! {
+                        <LoopIntersection
+                            branches={self.branches.clone()}
+                            continue_transition={continue_transition.clone()}
+                            exit_transition={exit_transition.clone()}
+                            line_width={line_width.clone()}
+                            id={UuidService::new_index()}
+                            on_append_step_and_transition={
+                                ctx
+                                .link()
+                                .callback(|on_add_step_and_transition_data|IntersectionMsg::AddStepAndTransition(on_add_step_and_transition_data))}/>
+                    },
+                }}
             </>
+        }
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            IntersectionMsg::AddStepAndTransition(on_add_step_and_transition_data) => {
+                let branch_index = on_add_step_and_transition_data.branch_index;
+                let transition_id = on_add_step_and_transition_data.transition_id;
+
+                if let Some(pos) = ctx.props().branches[branch_index]
+                    .elements
+                    .iter()
+                    .position(|x| transition_id == x.get_id())
+                {
+                    let id = UuidService::new_index();
+                    let new_element = Element::Step(StepProps {
+                        id,
+                        action_name: "".to_string(),
+                    });
+                    self.branches[branch_index]
+                        .elements
+                        .insert(pos + 1, new_element);
+
+                    let id = UuidService::new_index();
+                    let new_transition = Element::Transition(TransitionProps {
+                        id,
+                        transitions: "".to_string(),
+                        on_add_step: ctx.link().callback(move |_| {
+                            IntersectionMsg::AddStepAndTransition(OnAddStepAndTransitionData {
+                                branch_index,
+                                transition_id: id,
+                            })
+                        }),
+                    });
+                    self.branches[branch_index]
+                        .elements
+                        .insert(pos + 2, new_transition);
+
+                    return true;
+                }
+                Log::error::<Self>("Failed to add step. Could't find transition to append to.");
+                return false;
+            }
+            IntersectionMsg::AppendTransitionAndStep(branch_index) => {
+                #[cfg(debug_assertions)]
+                Log::debug::<Self>("");
+
+                let id = UuidService::new_index();
+                let new_transition = Element::Transition(TransitionProps {
+                    id,
+                    transitions: "".to_string(),
+                    on_add_step: ctx.link().callback(move |_| {
+                        IntersectionMsg::AddStepAndTransition(OnAddStepAndTransitionData {
+                            branch_index,
+                            transition_id: id,
+                        })
+                    }),
+                });
+                self.branches[branch_index].elements.push(new_transition);
+
+                let id = UuidService::new_index();
+                let new_step = Element::Step(StepProps {
+                    id,
+                    action_name: "".to_string(),
+                });
+                self.branches[branch_index].elements.push(new_step);
+
+                return true;
+            }
         }
     }
 }
