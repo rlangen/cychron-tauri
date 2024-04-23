@@ -4,5 +4,6 @@
   },
   "rust-analyzer.linkedProjects": [
     "./Cargo.toml"
-  ]
+  ],
+  "editor.tabSize": 2
 }
