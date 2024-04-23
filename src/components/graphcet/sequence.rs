@@ -1,31 +1,9 @@
 use yew::{html::IntoPropValue, prelude::*};
 
-pub mod step;
-use step::Step;
-
-pub mod transition;
-use transition::Transition;
-
-pub mod intersection;
-use intersection::Intersection;
+pub mod element;
+use element::{intersection::Intersection, step::Step, transition::Transition, Element};
 
 mod hover_control;
-
-#[derive(Clone, PartialEq, Debug)]
-pub enum Element {
-    Step(step::StepProps),
-    Transition(transition::TransitionProps),
-    Intersection(intersection::IntersectionProps),
-}
-impl Element {
-    pub fn get_id(&self) -> u128 {
-        match self {
-            Element::Step(step_props) => step_props.id,
-            Element::Transition(transition_props) => transition_props.id,
-            Element::Intersection(intersection_props) => intersection_props.id,
-        }
-    }
-}
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct SequenceProps {

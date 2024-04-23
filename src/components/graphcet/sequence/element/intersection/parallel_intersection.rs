@@ -2,8 +2,8 @@ use yew::prelude::*;
 
 use crate::{
     components::graphcet::sequence::{
+        element::transition::{Transition, TransitionProps},
         hover_control::HoverControl,
-        transition::{Transition, TransitionProps},
         Sequence, SequenceProps,
     },
     services::uuid_service::UuidService,

@@ -1,7 +1,8 @@
 use yew::prelude::*;
 
 use crate::components::graphcet::sequence::{
-    intersection::parallel_intersection::OnAddStepAndTransitionData, Sequence, SequenceProps,
+    element::intersection::parallel_intersection::OnAddStepAndTransitionData, Sequence,
+    SequenceProps,
 };
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]

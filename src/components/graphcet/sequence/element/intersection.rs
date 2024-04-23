@@ -4,7 +4,10 @@ use self::parallel_intersection::OnAddStepAndTransitionData;
 
 use super::transition::TransitionProps;
 use crate::{
-    components::graphcet::sequence::{step::StepProps, Element, SequenceProps},
+    components::graphcet::sequence::{
+        element::{step::StepProps, Element},
+        SequenceProps,
+    },
     services::{logging_service::Log, uuid_service::UuidService},
 };
 

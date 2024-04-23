@@ -1,9 +1,8 @@
 use web_sys::HtmlTextAreaElement;
 use yew::{html::IntoPropValue, prelude::*};
 
-use hover_control::HoverControl;
+use crate::components::graphcet::sequence::hover_control::HoverControl;
 
-use super::hover_control;
 pub struct Transition {
     transitions: String,
 }

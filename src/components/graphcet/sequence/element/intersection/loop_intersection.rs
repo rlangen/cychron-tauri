@@ -1,8 +1,10 @@
 use yew::prelude::*;
 
 use crate::components::graphcet::sequence::{
-    intersection::parallel_intersection::OnAddStepAndTransitionData,
-    transition::{Transition, TransitionProps},
+    element::{
+        intersection::parallel_intersection::OnAddStepAndTransitionData,
+        transition::{Transition, TransitionProps},
+    },
     Sequence, SequenceProps,
 };
 
