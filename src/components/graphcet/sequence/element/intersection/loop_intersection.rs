@@ -11,7 +11,6 @@ use crate::components::graphcet::sequence::{
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct LoopIntersectionProps {
   pub id: u128,
-  pub line_width: usize,
   pub branches: Vec<SequenceProps>,
   pub continue_transition: TransitionProps,
   pub exit_transition: TransitionProps,
@@ -33,8 +32,7 @@ impl Component for LoopIntersection {
     html! {<>
       <div
         key={ctx.props().id}
-        style={format!("width: {}px", ctx.props().line_width-48+404)}
-        class="intersection__alternative-branch-line"/>
+        class="intersection__loop-branch-seperation-line"/>
       <div class="intersection__grid-container">
         {for ctx.props().branches.iter().enumerate().map(|(index, item)| {
           html! {
@@ -54,7 +52,7 @@ impl Component for LoopIntersection {
             </div>
           }
         })}
-        <div class="container">
+        <div class="intersection__grid-item">
           <div class="path__short path__short--margin-left"/>
           <div class="path__dynamic"/>
           <Transition
@@ -67,8 +65,7 @@ impl Component for LoopIntersection {
       </div>
       <div
         key={ctx.props().id}
-        style={format!("width: {}px", ctx.props().line_width-48+404-50)}
-        class="intersection__alternative-branch-line"/>
+        class="intersection__loop-branch-seperation-line"/>
         <Transition
           transitions={ctx.props().exit_transition.clone()}
           id={ctx.props().exit_transition.id.clone()}

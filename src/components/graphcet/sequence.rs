@@ -29,12 +29,7 @@ impl Component for Sequence {
 
   fn view(&self, ctx: &Context<Self>) -> Html {
     html! {
-      <div
-        style="
-          display: flex; 
-          flex-direction: column; 
-          align-items: left;
-          margin-left: 0px;">
+      <div class="sequence__container">
         {for ctx.props().elements.iter().enumerate().map(|(index, item)| {
           match item {
             Element::Step(step_props) => html! {

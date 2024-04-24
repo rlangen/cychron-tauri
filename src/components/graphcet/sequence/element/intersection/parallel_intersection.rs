@@ -12,7 +12,6 @@ use crate::{
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub(super) struct ParallelIntersecionProps {
   pub exit_transition: TransitionProps,
-  pub line_width: usize,
   pub id: u128,
   pub branches: Vec<SequenceProps>,
   pub on_append_transition_and_step: Callback<usize>,
@@ -35,17 +34,7 @@ impl Component for ParallelIntersection {
 
   fn view(&self, ctx: &Context<Self>) -> Html {
     html! {<>
-      <div
-        style={format!("
-        height: 2px;
-        width: {}px;
-        background-color: black;", ctx.props().line_width)}/>
-      <div style="height: 2px;"/>
-      <div
-        style={format!("
-        height: 2px;
-        width: {}px;
-        background-color: black;", ctx.props().line_width)}/>
+      <div class="intersection__parallel-branch-seperation-line"/>
       <div class="intersection__grid-container" key={ctx.props().id.to_string()+"_grid-container"}>
         {for ctx.props().branches.iter().enumerate().map(|(index, item)| {
           html! {
@@ -69,17 +58,7 @@ impl Component for ParallelIntersection {
           }
         })}
       </div>
-      <div
-        style={format!("
-        height: 2px;
-        width: {}px;
-        background-color: black;", ctx.props().line_width)}/>
-      <div style="height: 2px;"/>
-      <div
-        style={format!("
-        height: 2px;
-        width: {}px;
-        background-color: black;", ctx.props().line_width)}/>
+      <div class="intersection__parallel-branch-seperation-line"/>
       <Transition
         transitions={ctx.props().exit_transition.transitions.clone()}
         id={ctx.props().exit_transition.id.clone()}

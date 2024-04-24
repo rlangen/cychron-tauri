@@ -36,56 +36,15 @@ impl Component for Step {
 
   fn view(&self, ctx: &Context<Self>) -> Html {
     html! {
-      <div
-        style="
-          display: flex; 
-          flex-direction: row; 
-          align-items: center;
-          margin-left: 0;">
-        <div
-          style="
-            width: 44px; 
-            height: 44px; 
-            background-color: white;
-            border-color: black;
-            border-style: solid;
-            border-width: 3px;
-            margin: 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;">
+      <div class="step__container">
+        <div class="step__number-field">
           // {ctx.props().id}
         </div>
-        <div
-          style="
-            width: 30px; 
-            height: 3px; 
-            background-color: black;"/>
-        <div
-          style="
-            width: 200px;
-            height: 30px; 
-            background-color: white;
-            border-color: black;
-            border-style: solid;
-            border-width: 3px;
-            margin: 0 0;
-            display: flex;
-            align-items: center;">
+        <div class="step__horizontal-connector"/>
+        <div class="action__container">
           <textarea
-            style="
-              width: 100%;
-              height: 90%;
-              border: none;
-              background-color: transparent;
-              font-size: 15px;
-              font-weight: normal;
-              text-align: left;
-              padding-left: 5px;
-              padding-top: 5px;
-              resize: none;
-              auto-correct: off;"
-              spellcheck="false"
+            class="action__textarea"
+            spellcheck="false"
             value={self.action_name.clone()}
             oninput={ctx.link().callback(|e: InputEvent| {
               let input: HtmlTextAreaElement = e.target_unchecked_into();

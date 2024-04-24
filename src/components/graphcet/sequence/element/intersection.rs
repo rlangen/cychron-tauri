@@ -61,19 +61,13 @@ impl Component for Intersection {
     }
   }
   fn view(&self, ctx: &Context<Self>) -> Html {
-    let line_width = if ctx.props().branches.len() > 1 {
-      (ctx.props().branches.len() - 1) * 354 + 50
-    } else {
-      50
-    };
-
-    html! {<>
+    html! {
+      <div class= "intersection__top-level-container">
       {match &ctx.props().intersection_type {
         IntersectionType::ParallelBranches(exit_transition) => html! {
           <ParallelIntersection
             branches={self.branches.clone()}
             exit_transition={exit_transition.clone()}
-            line_width={line_width.clone()}
             id={UuidService::new_index()}
             on_add_step_and_transition={
               ctx
@@ -87,7 +81,6 @@ impl Component for Intersection {
         IntersectionType::AlternativeBranches => html! {
           <AlternativeIntersection
             branches={self.branches.clone()}
-            line_width={line_width.clone()}
             id={UuidService::new_index()}
             on_append_step_and_transition={
               ctx
@@ -99,7 +92,6 @@ impl Component for Intersection {
             branches={self.branches.clone()}
             continue_transition={continue_transition.clone()}
             exit_transition={exit_transition.clone()}
-            line_width={line_width.clone()}
             id={UuidService::new_index()}
             on_append_step_and_transition={
               ctx
@@ -107,7 +99,7 @@ impl Component for Intersection {
               .callback(|on_add_step_and_transition_data|IntersectionMsg::AddStepAndTransition(on_add_step_and_transition_data))}/>
         },
       }}
-    </>}
+    </div>}
   }
 
   fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {

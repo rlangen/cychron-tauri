@@ -7,7 +7,6 @@ use crate::components::graphcet::sequence::{
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct AlternativeIntersectionProps {
   pub id: u128,
-  pub line_width: usize,
   pub branches: Vec<SequenceProps>,
   pub on_append_step_and_transition: Callback<OnAddStepAndTransitionData>,
 }
@@ -27,8 +26,7 @@ impl Component for AlternativeIntersection {
     html! {<>
       <div
         key={ctx.props().id}
-        style={format!("width: {}px", ctx.props().line_width-48)}
-        class="intersection__alternative-branch-line"/>
+        class="intersection__alternative-branch-seperation-line"/>
       <div class="intersection__grid-container">
         {for ctx.props().branches.iter().enumerate().map(|(index, item)| {
           html! {
@@ -51,8 +49,7 @@ impl Component for AlternativeIntersection {
       </div>
       <div
         key={ctx.props().id}
-        style={format!("width: {}px", ctx.props().line_width-48)}
-        class="intersection__alternative-branch-line"/>
+        class="intersection__alternative-branch-seperation-line"/>
       <div class="path__short path__short--margin-left"/>
     </>}
   }

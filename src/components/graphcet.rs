@@ -197,11 +197,9 @@ impl Component for Graphcet {
 
   fn view(&self, _ctx: &Context<Self>) -> Html {
     html! {
-      <div class="parent">
-        <Sequence
-          elements={self.sequence.clone()}
-          on_add_step_and_transition={_ctx.link().callback(move |transition_id| GraphcetMsg::AddStepAndTransition(transition_id))}/>
-      </div>
+      <Sequence
+        elements={self.sequence.clone()}
+        on_add_step_and_transition={_ctx.link().callback(move |transition_id| GraphcetMsg::AddStepAndTransition(transition_id))}/>
     }
   }
 

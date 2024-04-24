@@ -1,7 +1,20 @@
 .logo.yew:hover {
   filter: drop-shadow(0 0 2em #20a88a);
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 :root {
+  --path__line-width: 2px;
+  --step__number-field-width: 50px;
+  --step__horizontal-connector-width: 30px;
+  --action__box-width: 210px;
+  --step__width: calc(var(--step__number-field-width) + var(--step__horizontal-connector-width) + var(--action__box-width));
+
+  box-sizing: border-box; /* Makes the padding and border included within the width and height */
+
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
