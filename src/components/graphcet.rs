@@ -5,7 +5,7 @@ use crate::services::uuid_service::UuidService;
 mod sequence;
 use sequence::{
   element::{
-    intersection::{IntersectionProps, IntersectionType},
+    intersection::{IntersectionProps, IntersectionType, TransitionId},
     step::StepProps,
     transition::TransitionProps,
     Element,
@@ -14,8 +14,7 @@ use sequence::{
 };
 
 pub enum GraphcetMsg {
-  /// (Transition id)
-  AddStepAndTransition(u128),
+  AddStepAndTransition(TransitionId),
 }
 
 pub struct Graphcet {
@@ -199,7 +198,11 @@ impl Component for Graphcet {
     html! {
       <Sequence
         elements={self.sequence.clone()}
-        on_add_step_and_transition={_ctx.link().callback(move |transition_id| GraphcetMsg::AddStepAndTransition(transition_id))}/>
+        on_add_step_and_transition={
+          _ctx
+          .link()
+          .callback(move |transition_id| GraphcetMsg::AddStepAndTransition(transition_id))
+        }/>
     }
   }
 
@@ -210,7 +213,7 @@ impl Component for Graphcet {
           .sequence
           .elements
           .iter()
-          .position(|x| transition_id == x.get_id())
+          .position(|x| transition_id.0 == x.get_id())
         {
           let id = UuidService::new_index();
           let new_element = Element::Step(StepProps {
@@ -225,7 +228,7 @@ impl Component for Graphcet {
             transitions: "".to_string(),
             on_add_step: ctx
               .link()
-              .callback(move |_| GraphcetMsg::AddStepAndTransition(id)),
+              .callback(move |_| GraphcetMsg::AddStepAndTransition(TransitionId(id))),
           });
           self.sequence.elements.insert(pos + 2, new_transition);
         }

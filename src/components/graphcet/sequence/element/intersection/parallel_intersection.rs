@@ -2,7 +2,11 @@ use yew::prelude::*;
 
 use crate::{
   components::graphcet::sequence::{
-    element::transition::{Transition, TransitionProps},
+    element::{
+      intersection::{BranchIndex, TransitionId},
+      transition::{Transition, TransitionProps},
+      Element,
+    },
     hover_control::HoverControl,
     Sequence, SequenceProps,
   },
@@ -14,12 +18,26 @@ pub(super) struct ParallelIntersecionProps {
   pub exit_transition: TransitionProps,
   pub id: u128,
   pub branches: Vec<SequenceProps>,
-  pub on_append_transition_and_step: Callback<usize>,
-  pub on_add_step_and_transition: Callback<OnAddStepAndTransitionData>,
+  pub on_append_transition_and_step: Callback<BranchIndex>,
+  pub on_add_step_and_transition: Callback<(BranchIndex, TransitionId)>,
 }
-pub struct OnAddStepAndTransitionData {
-  pub branch_index: usize,
-  pub transition_id: u128,
+
+impl Default for ParallelIntersecionProps {
+  fn default() -> Self {
+    Self {
+      exit_transition: TransitionProps::default(),
+      id: UuidService::new_index(),
+      branches: vec![SequenceProps {
+        elements: vec![
+          Element::Step(Default::default()),
+          Element::Transition(Default::default()),
+        ],
+        on_add_step_and_transition: Callback::noop(),
+      }],
+      on_append_transition_and_step: Callback::noop(),
+      on_add_step_and_transition: Callback::noop(),
+    }
+  }
 }
 
 pub(super) struct ParallelIntersection;
@@ -43,15 +61,16 @@ impl Component for ParallelIntersection {
                 <div class="path__short path__short--margin-left"/>
                   <Sequence
                     elements={item.elements.clone()}
-                    on_add_step_and_transition={ctx.props().on_add_step_and_transition.reform(move |transition_id| OnAddStepAndTransitionData {
-                    branch_index: index,
-                    transition_id,})}/>
+                    on_add_step_and_transition={
+                      ctx
+                      .props().on_add_step_and_transition
+                      .reform(move |transition_id| (BranchIndex(index), transition_id))}/>
               </div>
               <div class="intersection__vertical-fill-line"/>
               <div class="intersection__hover-container">
                 <div class="path__short path__short--margin-left"/>
                 <HoverControl
-                  on_add_step={ctx.props().on_append_transition_and_step.reform(move |_| index)}
+                  on_add_step={ctx.props().on_append_transition_and_step.reform(move |_| BranchIndex(index))}
                   id={UuidService::new_index()}/>
               </div>
             </div>

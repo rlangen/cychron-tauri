@@ -1,6 +1,8 @@
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
+use crate::services::uuid_service::UuidService;
+
 pub struct Step {
   action_name: String,
 }
@@ -9,10 +11,18 @@ pub enum Msg {
   ActionNameUpdateEvent(String),
 }
 
-#[derive(Clone, PartialEq, Properties, Default, Debug)]
+#[derive(Clone, PartialEq, Properties, Debug)]
 pub struct StepProps {
   pub id: u128,
   pub action_name: String,
+}
+impl Default for StepProps {
+  fn default() -> Self {
+    Self {
+      id: UuidService::new_index(),
+      action_name: String::from(""),
+    }
+  }
 }
 
 impl Component for Step {

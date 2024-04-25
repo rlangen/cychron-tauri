@@ -1,22 +1,35 @@
 use web_sys::HtmlTextAreaElement;
 use yew::{html::IntoPropValue, prelude::*};
 
-use crate::components::graphcet::sequence::hover_control::HoverControl;
+use crate::{
+  components::graphcet::sequence::hover_control::HoverControl, services::uuid_service::UuidService,
+};
+
+use super::intersection::TransitionId;
 
 pub struct Transition {
   transitions: String,
 }
 
-#[derive(Clone, PartialEq, Properties, Default, Debug)]
+#[derive(Clone, PartialEq, Properties, Debug)]
 pub struct TransitionProps {
   pub id: u128,
   pub transitions: String,
-  pub on_add_step: Callback<u128>,
+  pub on_add_step: Callback<TransitionId>,
 }
 impl IntoPropValue<String> for TransitionProps {
   fn into_prop_value(self) -> String {
     // Convert self into a Vec<sequence::Element> here
     self.transitions
+  }
+}
+impl Default for TransitionProps {
+  fn default() -> Self {
+    Self {
+      id: UuidService::new_index(),
+      transitions: String::from(""),
+      on_add_step: Callback::noop(),
+    }
   }
 }
 
@@ -52,7 +65,7 @@ impl Component for Transition {
           <div class="transition__bar"/>
           <div class="path__short"/>
           <HoverControl
-            on_add_step={ctx.props().on_add_step.reform(move |_| id)}
+            on_add_step={ctx.props().on_add_step.reform(move |_| TransitionId(id))}
             id={ctx.props().id.clone()}/>
         </div>
         <div class="transition__name-field">

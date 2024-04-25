@@ -1,7 +1,12 @@
 use yew::{html::IntoPropValue, prelude::*};
 
 pub mod element;
-use element::{intersection::Intersection, step::Step, transition::Transition, Element};
+use element::{
+  intersection::{Intersection, TransitionId},
+  step::Step,
+  transition::Transition,
+  Element,
+};
 
 mod hover_control;
 
@@ -9,7 +14,7 @@ mod hover_control;
 pub struct SequenceProps {
   pub elements: Vec<Element>,
   /// <u128> is the id of the transition
-  pub on_add_step_and_transition: Callback<u128>,
+  pub on_add_step_and_transition: Callback<TransitionId>,
 }
 impl IntoPropValue<Vec<Element>> for SequenceProps {
   fn into_prop_value(self) -> Vec<Element> {
@@ -44,7 +49,7 @@ impl Component for Sequence {
                 <Transition
                   transitions={transition_props.transitions.clone()}
                   id={transition_props.id.clone()}
-                  on_add_step={ctx.props().on_add_step_and_transition.reform(move |_| id)}/>
+                  on_add_step={ctx.props().on_add_step_and_transition.reform(move |_| TransitionId(id))}/>
               }
             },
             Element::Intersection(intersection_props) => html! {

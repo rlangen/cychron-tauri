@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::components::graphcet::sequence::{
   element::{
-    intersection::parallel_intersection::OnAddStepAndTransitionData,
+    intersection::{BranchIndex, TransitionId},
     transition::{Transition, TransitionProps},
   },
   Sequence, SequenceProps,
@@ -14,7 +14,7 @@ pub struct LoopIntersectionProps {
   pub branches: Vec<SequenceProps>,
   pub continue_transition: TransitionProps,
   pub exit_transition: TransitionProps,
-  pub on_append_step_and_transition: Callback<OnAddStepAndTransitionData>,
+  pub on_append_step_and_transition: Callback<(BranchIndex, TransitionId)>,
 }
 
 pub(super) struct LoopIntersection;
@@ -42,10 +42,12 @@ impl Component for LoopIntersection {
                 <Sequence
                   key={index.clone()}
                   elements={item.elements.clone()}
-                  on_add_step_and_transition={ctx.props().on_append_step_and_transition.reform(move |transition_id| OnAddStepAndTransitionData{
-                    branch_index: index,
-                    transition_id,
-                  })}/>
+                  on_add_step_and_transition={
+                    ctx
+                    .props()
+                    .on_append_step_and_transition
+                    .reform(move |transition_id| (BranchIndex(index), transition_id),)
+                  }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
               <div class="path__short path__short--margin-left"/>

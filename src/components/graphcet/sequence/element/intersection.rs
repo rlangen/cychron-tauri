@@ -1,7 +1,5 @@
 use yew::prelude::*;
 
-use self::parallel_intersection::OnAddStepAndTransitionData;
-
 use super::transition::TransitionProps;
 use crate::{
   components::graphcet::sequence::{
@@ -41,11 +39,13 @@ impl Default for IntersectionType {
 }
 
 pub enum IntersectionMsg {
-  /// (Branch index, Transition id)
-  AddStepAndTransition(OnAddStepAndTransitionData),
-  /// (Transition id)
-  AppendTransitionAndStep(usize),
+  AddStepAndTransition((BranchIndex, TransitionId)),
+  AppendTransitionAndStep(BranchIndex),
 }
+#[derive(Copy, Clone)]
+pub struct BranchIndex(pub usize);
+#[derive(Copy, Clone)]
+pub struct TransitionId(pub u128);
 
 pub struct Intersection {
   branches: Vec<SequenceProps>,
@@ -104,9 +104,9 @@ impl Component for Intersection {
 
   fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
     match msg {
-      IntersectionMsg::AddStepAndTransition(on_add_step_and_transition_data) => {
-        let branch_index = on_add_step_and_transition_data.branch_index;
-        let transition_id = on_add_step_and_transition_data.transition_id;
+      IntersectionMsg::AddStepAndTransition((branch_index, transition_id)) => {
+        let branch_index = branch_index.0;
+        let transition_id = transition_id.0;
 
         if let Some(pos) = ctx.props().branches[branch_index]
           .elements
@@ -127,10 +127,10 @@ impl Component for Intersection {
             id,
             transitions: "".to_string(),
             on_add_step: ctx.link().callback(move |_| {
-              IntersectionMsg::AddStepAndTransition(OnAddStepAndTransitionData {
-                branch_index,
-                transition_id: id,
-              })
+              IntersectionMsg::AddStepAndTransition((
+                BranchIndex(branch_index),
+                TransitionId(transition_id),
+              ))
             }),
           });
           self.branches[branch_index]
@@ -143,28 +143,26 @@ impl Component for Intersection {
         return false;
       }
       IntersectionMsg::AppendTransitionAndStep(branch_index) => {
-        #[cfg(debug_assertions)]
-        Log::debug::<Self>("");
+        let branch_index_number = branch_index.0;
 
         let id = UuidService::new_index();
         let new_transition = Element::Transition(TransitionProps {
           id,
           transitions: "".to_string(),
           on_add_step: ctx.link().callback(move |_| {
-            IntersectionMsg::AddStepAndTransition(OnAddStepAndTransitionData {
-              branch_index,
-              transition_id: id,
-            })
+            IntersectionMsg::AddStepAndTransition((branch_index, TransitionId(id)))
           }),
         });
-        self.branches[branch_index].elements.push(new_transition);
+        self.branches[branch_index_number]
+          .elements
+          .push(new_transition);
 
         let id = UuidService::new_index();
         let new_step = Element::Step(StepProps {
           id,
           action_name: "".to_string(),
         });
-        self.branches[branch_index].elements.push(new_step);
+        self.branches[branch_index_number].elements.push(new_step);
 
         return true;
       }
