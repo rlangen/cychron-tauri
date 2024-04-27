@@ -9,18 +9,18 @@
   grid-template-columns: repeat(auto-fit, minmax(var(--step__width), max-content));
   grid-template-rows: auto;  /* Define a single row */
   grid-auto-flow: column;   /* Place new items in columns, not rows */
-  gap: 70px;
+  gap: 50px;
   position: relative;
 }
 
 .intersection__grid-item {
   display: flex;
-  width: var(--step__width);
+  width: max-content;
   flex-direction: column;
 }
 
 .intersection__content-wrapper {
-  width: var(--step__width);
+  width: max-content;
   flex-grow: 0;
 }
 

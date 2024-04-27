@@ -1,0 +1,75 @@
+.net_button__container{
+  display: inline-flex;
+  flex-direction: row;
+  width: max-content;
+
+  background-color: lightgray;
+
+  border-radius: 5px;
+  border-color: darkgray;
+  border-style: solid;
+  border-width: 2px;
+
+  padding: 0px;
+
+  justify-content: center;
+  align-items: center;
+}
+.net_button__container:hover{
+  background-color: lightskyblue;
+  box-shadow: 0px 0px 2px 0px darkblue;
+  transform: scale(1.00);
+}
+.net_button__container:active{
+  background-color: yellow;
+  box-shadow: 0px 0px 2px 0px darkblue;
+  transform: scale(1.00);
+}
+
+.net_button__direction{
+  width: 22px;
+  height: 22px;
+
+  background-color: transparent;
+
+  font-size: 20px;
+
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 2px;
+  padding-right: 2px;
+
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.net_button__net_button__action-type{
+  width: max-content;
+  height: max-content;
+
+  background-color: transparent;
+  box-shadow: none;
+
+  border-style: none;
+  border-radius: 5px;
+
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 3px;
+  padding-right: 5px;
+
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.net_button__direction-seperation-line{
+  width: 1px;
+  height: 15px;
+
+  /* margin: 2px;
+  margin-bottom: 2px; */
+
+  background-color: darkgray;
+}

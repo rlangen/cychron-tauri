@@ -1,7 +1,10 @@
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
-use crate::services::uuid_service::UuidService;
+use crate::{components::graphcet::sequence::element::StepId, services::uuid_service::UuidService};
+
+mod step_hover_menu;
+use step_hover_menu::StepHoverMenu;
 
 pub struct Step {
   action_name: String,
@@ -15,12 +18,14 @@ pub enum Msg {
 pub struct StepProps {
   pub id: u128,
   pub action_name: String,
+  pub on_add_parallel_intersection: Callback<StepId>,
 }
 impl Default for StepProps {
   fn default() -> Self {
     Self {
       id: UuidService::new_index(),
       action_name: String::from(""),
+      on_add_parallel_intersection: Callback::noop(),
     }
   }
 }
@@ -45,11 +50,20 @@ impl Component for Step {
   }
 
   fn view(&self, ctx: &Context<Self>) -> Html {
+    let id = StepId(ctx.props().id);
     html! {
       <div class="step__container">
         <div class="step__number-field">
           // {ctx.props().id}
         </div>
+        <StepHoverMenu
+          on_add_parallel_intersection={
+            ctx
+            .props()
+            .on_add_parallel_intersection
+            .reform(move |_|id)
+          }
+        />
         <div class="step__horizontal-connector"/>
         <div class="action__container">
           <textarea

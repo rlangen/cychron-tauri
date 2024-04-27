@@ -8,6 +8,8 @@ use element::{
   Element,
 };
 
+use self::element::StepId;
+
 mod hover_control;
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
@@ -15,6 +17,7 @@ pub struct SequenceProps {
   pub elements: Vec<Element>,
   /// <u128> is the id of the transition
   pub on_add_step_and_transition: Callback<TransitionId>,
+  pub on_add_parallel_intersection: Callback<StepId>,
 }
 impl IntoPropValue<Vec<Element>> for SequenceProps {
   fn into_prop_value(self) -> Vec<Element> {
@@ -41,7 +44,8 @@ impl Component for Sequence {
               <Step
                 key={index.clone()}
                 id={step_props.id.clone()}
-                action_name={step_props.action_name.clone()}/>
+                action_name={step_props.action_name.clone()}
+                on_add_parallel_intersection={ctx.props().on_add_parallel_intersection.clone()}/>
             },
             Element::Transition(transition_props) => {
               let id = transition_props.id.clone();
@@ -49,7 +53,10 @@ impl Component for Sequence {
                 <Transition
                   transitions={transition_props.transitions.clone()}
                   id={transition_props.id.clone()}
-                  on_add_step={ctx.props().on_add_step_and_transition.reform(move |_| TransitionId(id))}/>
+                  on_add_step={ctx.props().on_add_step_and_transition.reform(move |_| TransitionId(id))}
+                  on_add_parallel_intersection={
+                    Callback::noop()
+                  }/>
               }
             },
             Element::Intersection(intersection_props) => html! {

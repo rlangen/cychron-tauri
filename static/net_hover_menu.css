@@ -1,0 +1,14 @@
+.net-hover-menu__container {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-rows: max-content;
+  grid-template-rows: repeat(2, max-content);
+  gap: 10px; /* Adjust the gap between cells as needed */
+
+  display: none;
+  position: absolute;
+  
+  align-items: start;
+  justify-content: start;
+  width: auto;
+}

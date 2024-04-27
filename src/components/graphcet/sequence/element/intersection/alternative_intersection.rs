@@ -1,7 +1,10 @@
 use yew::prelude::*;
 
 use crate::components::graphcet::sequence::{
-  element::intersection::{BranchIndex, TransitionId},
+  element::{
+    intersection::{BranchIndex, TransitionId},
+    StepId,
+  },
   Sequence, SequenceProps,
 };
 
@@ -10,6 +13,7 @@ pub struct AlternativeIntersectionProps {
   pub id: u128,
   pub branches: Vec<SequenceProps>,
   pub on_append_step_and_transition: Callback<(BranchIndex, TransitionId)>,
+  pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
 }
 
 pub(super) struct AlternativeIntersection;
@@ -42,6 +46,12 @@ impl Component for AlternativeIntersection {
                     .props()
                     .on_append_step_and_transition
                     .reform(move |transition_id| (BranchIndex(index), transition_id))
+                  }
+                  on_add_parallel_intersection={
+                    ctx
+                    .props()
+                    .on_add_parallel_intersection
+                    .reform(move |step_id| (BranchIndex(index), step_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>

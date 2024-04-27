@@ -1,5 +1,6 @@
 mod components {
   pub mod graphcet;
+  pub mod net_button;
 }
 use components::graphcet::Graphcet;
 

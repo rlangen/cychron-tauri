@@ -2,6 +2,9 @@ pub mod intersection;
 pub mod step;
 pub mod transition;
 
+#[derive(Clone, PartialEq, Copy)]
+pub struct StepId(pub u128);
+
 #[derive(Clone, PartialEq, Debug)]
 pub enum Element {
   Step(step::StepProps),

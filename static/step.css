@@ -5,6 +5,10 @@
   align-items: center;
   margin-left: 0;
 }
+.step__container:hover .net-hover-menu__container {
+  display: grid;
+  margin-left: 0px;
+}
 
 .step__number-field {
   display: inline-block;

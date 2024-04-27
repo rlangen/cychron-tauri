@@ -4,6 +4,7 @@ use crate::components::graphcet::sequence::{
   element::{
     intersection::{BranchIndex, TransitionId},
     transition::{Transition, TransitionProps},
+    StepId,
   },
   Sequence, SequenceProps,
 };
@@ -15,6 +16,7 @@ pub struct LoopIntersectionProps {
   pub continue_transition: TransitionProps,
   pub exit_transition: TransitionProps,
   pub on_append_step_and_transition: Callback<(BranchIndex, TransitionId)>,
+  pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
 }
 
 pub(super) struct LoopIntersection;
@@ -47,6 +49,12 @@ impl Component for LoopIntersection {
                     .props()
                     .on_append_step_and_transition
                     .reform(move |transition_id| (BranchIndex(index), transition_id),)
+                  }
+                  on_add_parallel_intersection={
+                    ctx
+                    .props()
+                    .on_add_parallel_intersection
+                    .reform(move |step_id| (BranchIndex(index), step_id),)
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
@@ -60,7 +68,8 @@ impl Component for LoopIntersection {
           <Transition
             transitions={ctx.props().continue_transition.transitions.clone()}
             id={ctx.props().continue_transition.id.clone()}
-            on_add_step={ctx.props().continue_transition.on_add_step.clone()}/>
+            on_add_step={ctx.props().continue_transition.on_add_step.clone()}
+            on_add_parallel_intersection={ctx.props().continue_transition.on_add_parallel_intersection.clone()}/>
           <div class="path__triangle_arrow_up"/>
           <div class="path__short path__short--margin-left"/>
         </div>
@@ -71,7 +80,8 @@ impl Component for LoopIntersection {
         <Transition
           transitions={ctx.props().exit_transition.clone()}
           id={ctx.props().exit_transition.id.clone()}
-          on_add_step={ctx.props().exit_transition.on_add_step.clone()}/>
+          on_add_step={ctx.props().exit_transition.on_add_step.clone()}
+          on_add_parallel_intersection={ctx.props().exit_transition.on_add_parallel_intersection.clone()}/>
     </>}
   }
 }

@@ -16,6 +16,7 @@ pub struct TransitionProps {
   pub id: u128,
   pub transitions: String,
   pub on_add_step: Callback<TransitionId>,
+  pub on_add_parallel_intersection: Callback<TransitionId>,
 }
 impl IntoPropValue<String> for TransitionProps {
   fn into_prop_value(self) -> String {
@@ -29,6 +30,7 @@ impl Default for TransitionProps {
       id: UuidService::new_index(),
       transitions: String::from(""),
       on_add_step: Callback::noop(),
+      on_add_parallel_intersection: Callback::noop(),
     }
   }
 }
@@ -66,6 +68,7 @@ impl Component for Transition {
           <div class="path__short"/>
           <HoverControl
             on_add_step={ctx.props().on_add_step.reform(move |_| TransitionId(id))}
+            on_add_parallel_intersection={ctx.props().on_add_parallel_intersection.reform(move |_| TransitionId(id))}
             id={ctx.props().id.clone()}/>
         </div>
         <div class="transition__name-field">

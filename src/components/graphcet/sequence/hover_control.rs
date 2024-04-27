@@ -4,6 +4,7 @@ use yew::{html, Callback, Component, Context, Html, Properties};
 pub struct HoverControlProps {
   pub id: u128,
   pub on_add_step: Callback<()>,
+  pub on_add_parallel_intersection: Callback<()>,
 }
 
 pub struct HoverControl;
@@ -29,7 +30,9 @@ impl Component for HoverControl {
         <div class= "hover_control__add-direction hover_control__add-direction--down">
           {"↓"}
         </div>
-        <button class="hover_control__button hover_control__button--add-parallel">
+        <button
+          class="hover_control__button hover_control__button--add-parallel"
+          onclick={ctx.props().on_add_parallel_intersection.reform(|_| ())}>
           { "P" }
         </button>
         <button class="hover_control__button hover_control__button--add-alternative">
