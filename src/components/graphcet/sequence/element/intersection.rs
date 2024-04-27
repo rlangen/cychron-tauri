@@ -1,5 +1,7 @@
 use yew::prelude::*;
 
+use self::parallel_intersection::ParallelIntersectionAddErr;
+
 use super::{transition::TransitionProps, StepId};
 use crate::{
   components::graphcet::sequence::{
@@ -188,7 +190,36 @@ impl Component for Intersection {
         return true;
       }
       IntersectionMsg::AddParallelIntersection((branch_index, step_id)) => {
-        ParallelIntersection::add(&mut self.branches[branch_index.0], step_id)
+        match ParallelIntersection::add(&mut self.branches[branch_index.0], step_id) {
+          Ok(needs_update) => {
+            return needs_update;
+          }
+          Err(err) => match err {
+            ParallelIntersectionAddErr::SequenceTooShort => {
+              self.branches[branch_index.0]
+                .elements
+                .push(Element::Transition(TransitionProps::default()));
+
+              self.branches[branch_index.0]
+                .elements
+                .push(Element::Step(StepProps::default()));
+
+              match ParallelIntersection::add(&mut self.branches[branch_index.0], step_id) {
+                Ok(needs_update) => {
+                  return needs_update;
+                }
+                Err(_) => {
+                  Log::error::<Self>("Failed to add parallel intersection.");
+                  return false;
+                }
+              }
+            }
+            ParallelIntersectionAddErr::StepNotFound => {
+              Log::error::<Self>("Failed to add parallel intersection. Step not found.");
+              false
+            }
+          },
+        }
       }
     }
   }

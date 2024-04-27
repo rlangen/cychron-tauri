@@ -13,7 +13,10 @@ use sequence::{
   Sequence, SequenceProps,
 };
 
-use self::sequence::element::{intersection::parallel_intersection::ParallelIntersection, StepId};
+use self::sequence::element::{
+  intersection::parallel_intersection::{ParallelIntersection, ParallelIntersectionAddErr},
+  StepId,
+};
 
 pub enum GraphcetMsg {
   AddStepAndTransition(TransitionId),
@@ -279,7 +282,20 @@ impl Component for Graphcet {
       }
 
       GraphcetMsg::AddParallelIntersection(step_id) => {
-        ParallelIntersection::add(&mut self.sequence, step_id)
+        match ParallelIntersection::add(&mut self.sequence, step_id) {
+          Ok(needs_update) => needs_update,
+          Err(err) => {
+            match err {
+              ParallelIntersectionAddErr::StepNotFound => {
+                Log::error::<Self>("Failed to add parallel intersection. Step not found");
+              }
+              ParallelIntersectionAddErr::SequenceTooShort => {
+                Log::error::<Self>("Failed to add parallel intersection. Sequence too short");
+              }
+            }
+            return false;
+          }
+        }
       }
     }
   }

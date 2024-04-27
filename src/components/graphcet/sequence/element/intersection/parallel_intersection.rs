@@ -11,7 +11,7 @@ use crate::{
     hover_control::HoverControl,
     Sequence, SequenceProps,
   },
-  services::{logging_service::Log, uuid_service::UuidService},
+  services::uuid_service::UuidService,
 };
 
 use super::{IntersectionProps, IntersectionType};
@@ -48,7 +48,14 @@ impl Default for ParallelIntersecionProps {
 
 pub(crate) struct ParallelIntersection;
 impl ParallelIntersection {
-  pub fn add(sequence: &mut SequenceProps, step_id: StepId) -> bool {
+  pub fn add(
+    sequence: &mut SequenceProps,
+    step_id: StepId,
+  ) -> Result<bool, ParallelIntersectionAddErr> {
+    if sequence.elements.len() < 2 {
+      return Err(ParallelIntersectionAddErr::SequenceTooShort);
+    }
+
     if let Some(pos) = sequence
       .elements
       .iter()
@@ -92,12 +99,15 @@ impl ParallelIntersection {
       sequence
         .elements
         .insert(pos, Element::Intersection(new_parallel_intersection));
-      return true;
+      Ok(true)
     } else {
-      Log::error::<Self>("Transition to add parallel intersection not found");
-      return false;
+      Err(ParallelIntersectionAddErr::StepNotFound)
     }
   }
+}
+pub enum ParallelIntersectionAddErr {
+  StepNotFound,
+  SequenceTooShort,
 }
 
 impl Component for ParallelIntersection {
