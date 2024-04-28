@@ -17,17 +17,23 @@ use crate::{
   services::uuid_service::UuidService,
 };
 
-use super::{AddToLeft, IntersectionProps, IntersectionType};
+use super::{AddToLeft, IntersectionId, IntersectionProps, IntersectionType};
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub(crate) struct ParallelIntersecionProps {
   pub exit_transition: TransitionProps,
   pub id: u128,
   pub branches: Vec<SequenceProps>,
+
   pub on_prepend_element_pair: Callback<BranchIndex>,
+  pub on_insert_element_pair: Callback<(BranchIndex, TransitionId)>,
   pub on_append_element_pair: Callback<BranchIndex>,
-  pub on_add_step_and_transition: Callback<(BranchIndex, TransitionId)>,
-  pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
+
+  pub on_attach_element_pair_to_intersection: Callback<()>,
+  pub on_pass_attach_element_pair_to_intersection: Callback<(BranchIndex, IntersectionId)>,
+
+  pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
+
   pub on_add_branch: Callback<(BranchIndex, AddToLeft)>,
 }
 
@@ -41,14 +47,20 @@ impl Default for ParallelIntersecionProps {
           Element::Step(Default::default()),
           Element::Transition(Default::default()),
         ],
-        on_add_step_and_transition: Callback::noop(),
-        on_add_parallel_intersection: Callback::noop(),
+        on_insert_element_pair: Callback::noop(),
+        on_insert_parallel_intersection: Callback::noop(),
+        on_attach_element_pair_to_intersection: Callback::noop(),
       }],
       on_prepend_element_pair: Callback::noop(),
       on_append_element_pair: Callback::noop(),
-      on_add_step_and_transition: Callback::noop(),
-      on_add_parallel_intersection: Callback::noop(),
+      on_insert_element_pair: Callback::noop(),
+
+      on_attach_element_pair_to_intersection: Callback::noop(),
+
+      on_insert_parallel_intersection: Callback::noop(),
+
       on_add_branch: Callback::noop(),
+      on_pass_attach_element_pair_to_intersection: Callback::noop(),
     }
   }
 }
@@ -86,8 +98,9 @@ impl ParallelIntersection {
 
       let new_branch = SequenceProps {
         elements: vec![triggering_step],
-        on_add_step_and_transition: Callback::noop(),
-        on_add_parallel_intersection: Callback::noop(),
+        on_insert_element_pair: Callback::noop(),
+        on_insert_parallel_intersection: Callback::noop(),
+        on_attach_element_pair_to_intersection: Callback::noop(),
       };
 
       let new_parallel_intersection = IntersectionProps {
@@ -97,10 +110,12 @@ impl ParallelIntersection {
           new_branch,
           SequenceProps {
             elements: vec![Element::Step(StepProps::default())],
-            on_add_step_and_transition: Callback::noop(),
-            on_add_parallel_intersection: Callback::noop(),
+            on_insert_element_pair: Callback::noop(),
+            on_insert_parallel_intersection: Callback::noop(),
+            on_attach_element_pair_to_intersection: Callback::noop(),
           },
         ],
+        on_attach_element_pair_to_intersection: Callback::noop(),
       };
 
       sequence
@@ -158,15 +173,20 @@ impl Component for ParallelIntersection {
                 </div>
                 <Sequence
                   elements={item.elements.clone()}
-                  on_add_step_and_transition={
+                  on_insert_element_pair={
                     ctx
-                    .props().on_add_step_and_transition
+                    .props().on_insert_element_pair
                     .reform(move |transition_id| (BranchIndex(index), transition_id))}
-                  on_add_parallel_intersection={
+                  on_insert_parallel_intersection={
                     ctx
                     .props()
-                    .on_add_parallel_intersection
-                    .reform(move |step_id| (BranchIndex(index), step_id))
+                    .on_insert_parallel_intersection
+                    .reform(move |step_id| (BranchIndex(index), step_id))}
+                  on_attach_element_pair_to_intersection={
+                    ctx
+                    .props()
+                    .on_pass_attach_element_pair_to_intersection
+                    .reform(move |intersection_id| (BranchIndex(index), intersection_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
@@ -197,7 +217,11 @@ impl Component for ParallelIntersection {
             NetButtonProps {
               direction: Some(NetButtonDirection::South),
               button_text: "S".to_string(),
-              on_click: Callback::noop(),
+              on_click:
+                ctx
+                .props()
+                .on_attach_element_pair_to_intersection
+                .reform(|_| ())
             },
           ]}/>
     </>}

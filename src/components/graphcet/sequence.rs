@@ -2,22 +2,25 @@ use yew::{html::IntoPropValue, prelude::*};
 
 pub mod element;
 use element::{
-  intersection::{Intersection, TransitionId},
+  intersection::{Intersection, IntersectionId, TransitionId},
   step::Step,
   transition::Transition,
   Element,
 };
 
-use crate::components::net_button::{NetButtonDirection, NetButtonProps};
+use crate::{
+  components::net_button::{NetButtonDirection, NetButtonProps},
+  services::logging_service::Log,
+};
 
-use self::element::StepId;
+use self::element::{step::StepProps, transition::TransitionProps, StepId};
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct SequenceProps {
   pub elements: Vec<Element>,
-  /// <u128> is the id of the transition
-  pub on_add_step_and_transition: Callback<TransitionId>,
-  pub on_add_parallel_intersection: Callback<StepId>,
+  pub on_insert_element_pair: Callback<TransitionId>,
+  pub on_insert_parallel_intersection: Callback<StepId>,
+  pub on_attach_element_pair_to_intersection: Callback<IntersectionId>,
 }
 impl IntoPropValue<Vec<Element>> for SequenceProps {
   fn into_prop_value(self) -> Vec<Element> {
@@ -25,7 +28,29 @@ impl IntoPropValue<Vec<Element>> for SequenceProps {
   }
 }
 
-pub struct Sequence {}
+pub struct Sequence;
+impl Sequence {
+  pub fn attach_element_pair_to_intersection(
+    elements: &mut Vec<Element>,
+    intersection_id: IntersectionId,
+  ) -> bool {
+    if let Some(pos) = elements
+      .iter()
+      .position(|x| intersection_id.0 == x.get_id())
+    {
+      let new_step = Element::Step(StepProps::default());
+      elements.insert(pos + 1, new_step);
+
+      let new_transition = Element::Transition(TransitionProps::default());
+      elements.insert(pos + 2, new_transition);
+
+      return true;
+    } else {
+      Log::error::<Self>("Intersection to add step and transition not found");
+      return false;
+    }
+  }
+}
 
 impl Component for Sequence {
   type Message = ();
@@ -45,7 +70,7 @@ impl Component for Sequence {
                 key={index.clone()}
                 id={step_props.id.clone()}
                 action_name={step_props.action_name.clone()}
-                on_add_parallel_intersection={ctx.props().on_add_parallel_intersection.clone()}/>
+                on_insert_parallel_intersection={ctx.props().on_insert_parallel_intersection.clone()}/>
             },
             Element::Transition(transition_props) => {
               let id = transition_props.id.clone();
@@ -57,7 +82,7 @@ impl Component for Sequence {
                     NetButtonProps {
                       direction: Some(NetButtonDirection::South),
                       button_text: "S".to_string(),
-                      on_click: ctx.props().on_add_step_and_transition.reform(move |_| TransitionId(id)),
+                      on_click: ctx.props().on_insert_element_pair.reform(move |_| TransitionId(id)),
                     },
                   ]}/>
               }
@@ -66,7 +91,12 @@ impl Component for Sequence {
               <Intersection
                 branches={intersection_props.branches.clone()}
                 intersection_type={intersection_props.intersection_type.clone()}
-                id={intersection_props.id.clone()}/>
+                id={intersection_props.id.clone()}
+                on_attach_element_pair_to_intersection={
+                  ctx
+                  .props()
+                  .on_attach_element_pair_to_intersection
+                  .reform(|intersection_id|(intersection_id))}/>
             },
           }
         })}

@@ -22,14 +22,14 @@ pub enum Msg {
 pub struct StepProps {
   pub id: u128,
   pub action_name: String,
-  pub on_add_parallel_intersection: Callback<StepId>,
+  pub on_insert_parallel_intersection: Callback<StepId>,
 }
 impl Default for StepProps {
   fn default() -> Self {
     Self {
       id: UuidService::new_index(),
       action_name: String::from(""),
-      on_add_parallel_intersection: Callback::noop(),
+      on_insert_parallel_intersection: Callback::noop(),
     }
   }
 }
@@ -63,7 +63,7 @@ impl Component for Step {
               NetButtonProps {
                 direction: Some(NetButtonDirection::East),
                 button_text: "P".to_string(),
-                on_click: ctx.props().on_add_parallel_intersection.reform(move |_| id),
+                on_click: ctx.props().on_insert_parallel_intersection.reform(move |_| id),
               },
             ]}/>
           // {ctx.props().id}

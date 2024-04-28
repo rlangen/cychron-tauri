@@ -6,7 +6,7 @@ use super::{transition::TransitionProps, StepId};
 use crate::{
   components::graphcet::sequence::{
     element::{step::StepProps, Element},
-    SequenceProps,
+    Sequence, SequenceProps,
   },
   services::{logging_service::Log, uuid_service::UuidService},
 };
@@ -33,6 +33,8 @@ pub struct IntersectionProps {
   pub branches: Vec<SequenceProps>,
   pub intersection_type: IntersectionType,
   pub id: u128,
+
+  pub on_attach_element_pair_to_intersection: Callback<IntersectionId>,
 }
 impl Default for IntersectionType {
   fn default() -> Self {
@@ -42,10 +44,14 @@ impl Default for IntersectionType {
 
 pub enum IntersectionMsg {
   AddBranch((BranchIndex, AddToLeft)),
-  AddStepAndTransition((BranchIndex, TransitionId)),
+
   PrependElementPair(BranchIndex),
+  InsertElementPair((BranchIndex, TransitionId)),
   AppendElementPair(BranchIndex),
-  AddParallelIntersection((BranchIndex, StepId)),
+
+  AttachElementPairToIntersection((BranchIndex, IntersectionId)),
+
+  InsertParallelIntersection((BranchIndex, StepId)),
 }
 #[derive(Copy, Clone)]
 pub struct BranchIndex(pub usize);
@@ -53,6 +59,8 @@ pub struct BranchIndex(pub usize);
 pub struct TransitionId(pub u128);
 #[derive(Copy, Clone)]
 pub struct AddToLeft(pub bool);
+#[derive(Copy, Clone)]
+pub struct IntersectionId(pub u128);
 
 pub struct Intersection {
   branches: Vec<SequenceProps>,
@@ -68,6 +76,7 @@ impl Component for Intersection {
     }
   }
   fn view(&self, ctx: &Context<Self>) -> Html {
+    let id = ctx.props().id;
     html! {
       <div class= "intersection__top-level-container">
       {match &ctx.props().intersection_type {
@@ -76,10 +85,10 @@ impl Component for Intersection {
             branches={self.branches.clone()}
             exit_transition={exit_transition.clone()}
             id={UuidService::new_index()}
-            on_add_step_and_transition={
+            on_insert_element_pair={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddStepAndTransition(data))}
+              .callback(|data|IntersectionMsg::InsertElementPair(data))}
             on_prepend_element_pair={
               ctx
               .link()
@@ -88,14 +97,25 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|branch_index|IntersectionMsg::AppendElementPair(branch_index))}
-            on_add_parallel_intersection={
+            on_insert_parallel_intersection={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddParallelIntersection(data))}
+              .callback(|data|IntersectionMsg::InsertParallelIntersection(data))}
             on_add_branch={
               ctx
               .link()
               .callback(|data|IntersectionMsg::AddBranch(data))}
+            on_attach_element_pair_to_intersection={
+              ctx
+              .props()
+              .on_attach_element_pair_to_intersection
+              .clone()
+              .reform(move |_| IntersectionId(id))}
+            on_pass_attach_element_pair_to_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))
+            }
             />
         },
         IntersectionType::AlternativeBranches => html! {
@@ -110,15 +130,19 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|branch_index|IntersectionMsg::PrependElementPair(branch_index))}
-            on_append_step_and_transition={
+            on_append_element_pair={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddStepAndTransition(data))}
-            on_add_parallel_intersection={
+              .callback(|data|IntersectionMsg::InsertElementPair(data))}
+            on_insert_parallel_intersection={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddParallelIntersection(data))
-            }/>
+              .callback(|data|IntersectionMsg::InsertParallelIntersection(data))
+            }
+            on_pass_attach_element_pair_to_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))}/>
         },
         IntersectionType::LoopBranches(continue_transition, exit_transition) => html! {
           <LoopIntersection
@@ -130,15 +154,18 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|branch_index|IntersectionMsg::PrependElementPair(branch_index))}
-            on_append_step_and_transition={
+            on_append_element_pair={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddStepAndTransition(data))}
-            on_add_parallel_intersection={
+              .callback(|data|IntersectionMsg::InsertElementPair(data))}
+            on_insert_parallel_intersection={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddParallelIntersection(data))
-              }/>
+              .callback(|data|IntersectionMsg::InsertParallelIntersection(data))}
+            on_pass_attach_element_pair_to_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))}/>
         },
       }}
     </div>}
@@ -146,7 +173,7 @@ impl Component for Intersection {
 
   fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
     match msg {
-      IntersectionMsg::AddStepAndTransition((branch_index, transition_id)) => {
+      IntersectionMsg::InsertElementPair((branch_index, transition_id)) => {
         let branch_index = branch_index.0;
         let transition_id = transition_id.0;
 
@@ -159,7 +186,7 @@ impl Component for Intersection {
           let new_element = Element::Step(StepProps {
             id,
             action_name: "".to_string(),
-            on_add_parallel_intersection: Callback::noop(),
+            on_insert_parallel_intersection: Callback::noop(),
           });
           self.branches[branch_index]
             .elements
@@ -198,13 +225,13 @@ impl Component for Intersection {
         let new_step = Element::Step(StepProps {
           id,
           action_name: "".to_string(),
-          on_add_parallel_intersection: Callback::noop(),
+          on_insert_parallel_intersection: Callback::noop(),
         });
         self.branches[branch_index_number].elements.push(new_step);
 
         return true;
       }
-      IntersectionMsg::AddParallelIntersection((branch_index, step_id)) => {
+      IntersectionMsg::InsertParallelIntersection((branch_index, step_id)) => {
         match ParallelIntersection::add(&mut self.branches[branch_index.0], step_id) {
           Ok(needs_update) => {
             return needs_update;
@@ -243,8 +270,9 @@ impl Component for Intersection {
           IntersectionType::ParallelBranches(_) => {
             new_sequence = SequenceProps {
               elements: vec![Element::Step(StepProps::default())],
-              on_add_step_and_transition: Callback::noop(),
-              on_add_parallel_intersection: Callback::noop(),
+              on_insert_element_pair: Callback::noop(),
+              on_insert_parallel_intersection: Callback::noop(),
+              on_attach_element_pair_to_intersection: Callback::noop(),
             };
           }
           IntersectionType::AlternativeBranches => {
@@ -254,8 +282,9 @@ impl Component for Intersection {
                 Element::Step(StepProps::default()),
                 Element::Transition(TransitionProps::default()),
               ],
-              on_add_step_and_transition: Callback::noop(),
-              on_add_parallel_intersection: Callback::noop(),
+              on_insert_element_pair: Callback::noop(),
+              on_insert_parallel_intersection: Callback::noop(),
+              on_attach_element_pair_to_intersection: Callback::noop(),
             };
           }
           IntersectionType::LoopBranches(_, _) => {
@@ -294,6 +323,12 @@ impl Component for Intersection {
           }
         }
         true
+      }
+      IntersectionMsg::AttachElementPairToIntersection((branch_index, intersection_id)) => {
+        Sequence::attach_element_pair_to_intersection(
+          &mut self.branches[branch_index.0].elements,
+          intersection_id,
+        )
       }
     }
   }

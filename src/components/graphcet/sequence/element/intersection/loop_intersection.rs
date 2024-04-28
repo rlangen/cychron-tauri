@@ -3,7 +3,7 @@ use yew::prelude::*;
 use crate::components::{
   graphcet::sequence::{
     element::{
-      intersection::{BranchIndex, TransitionId},
+      intersection::{BranchIndex, IntersectionId, TransitionId},
       transition::{Transition, TransitionProps},
       StepId,
     },
@@ -19,9 +19,13 @@ pub struct LoopIntersectionProps {
   pub branches: Vec<SequenceProps>,
   pub continue_transition: TransitionProps,
   pub exit_transition: TransitionProps,
+
   pub on_prepend_element_pair: Callback<BranchIndex>,
-  pub on_append_step_and_transition: Callback<(BranchIndex, TransitionId)>,
-  pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
+  pub on_append_element_pair: Callback<(BranchIndex, TransitionId)>,
+
+  pub on_pass_attach_element_pair_to_intersection: Callback<(BranchIndex, IntersectionId)>,
+
+  pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
 }
 
 pub(super) struct LoopIntersection;
@@ -61,17 +65,23 @@ impl Component for LoopIntersection {
                 <Sequence
                   key={index.clone()}
                   elements={item.elements.clone()}
-                  on_add_step_and_transition={
+                  on_insert_element_pair={
                     ctx
                     .props()
-                    .on_append_step_and_transition
+                    .on_append_element_pair
                     .reform(move |transition_id| (BranchIndex(index), transition_id),)
                   }
-                  on_add_parallel_intersection={
+                  on_insert_parallel_intersection={
                     ctx
                     .props()
-                    .on_add_parallel_intersection
+                    .on_insert_parallel_intersection
                     .reform(move |step_id| (BranchIndex(index), step_id),)
+                  }
+                  on_attach_element_pair_to_intersection={
+                    ctx
+                    .props()
+                    .on_pass_attach_element_pair_to_intersection
+                    .reform(move |intersection_id| (BranchIndex(index), intersection_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
