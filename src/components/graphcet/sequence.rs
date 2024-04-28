@@ -8,9 +8,9 @@ use element::{
   Element,
 };
 
-use self::element::StepId;
+use crate::components::net_button::{NetButtonDirection, NetButtonProps};
 
-mod hover_control;
+use self::element::StepId;
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct SequenceProps {
@@ -53,10 +53,13 @@ impl Component for Sequence {
                 <Transition
                   transitions={transition_props.transitions.clone()}
                   id={transition_props.id.clone()}
-                  on_add_step={ctx.props().on_add_step_and_transition.reform(move |_| TransitionId(id))}
-                  on_add_parallel_intersection={
-                    Callback::noop()
-                  }/>
+                  buttons={vec![
+                    NetButtonProps {
+                      direction: Some(NetButtonDirection::South),
+                      button_text: "S".to_string(),
+                      on_click: ctx.props().on_add_step_and_transition.reform(move |_| TransitionId(id)),
+                    },
+                  ]}/>
               }
             },
             Element::Intersection(intersection_props) => html! {

@@ -1,12 +1,12 @@
 use yew::prelude::*;
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(Clone, PartialEq, Properties, Debug)]
 pub struct NetButtonProps {
   pub direction: Option<NetButtonDirection>,
   pub button_text: String,
   pub on_click: Callback<()>,
 }
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum NetButtonDirection {
   North,

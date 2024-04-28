@@ -2,10 +2,9 @@ use web_sys::HtmlTextAreaElement;
 use yew::{html::IntoPropValue, prelude::*};
 
 use crate::{
-  components::graphcet::sequence::hover_control::HoverControl, services::uuid_service::UuidService,
+  components::{net_button::NetButtonProps, net_user_control::NetUserControl},
+  services::uuid_service::UuidService,
 };
-
-use super::intersection::TransitionId;
 
 pub struct Transition {
   transitions: String,
@@ -15,8 +14,7 @@ pub struct Transition {
 pub struct TransitionProps {
   pub id: u128,
   pub transitions: String,
-  pub on_add_step: Callback<TransitionId>,
-  pub on_add_parallel_intersection: Callback<TransitionId>,
+  pub buttons: Vec<NetButtonProps>,
 }
 impl IntoPropValue<String> for TransitionProps {
   fn into_prop_value(self) -> String {
@@ -29,8 +27,7 @@ impl Default for TransitionProps {
     Self {
       id: UuidService::new_index(),
       transitions: String::from(""),
-      on_add_step: Callback::noop(),
-      on_add_parallel_intersection: Callback::noop(),
+      buttons: vec![],
     }
   }
 }
@@ -59,17 +56,13 @@ impl Component for Transition {
   }
 
   fn view(&self, ctx: &Context<Self>) -> Html {
-    let id = ctx.props().id.clone();
     html! {
       <div class="transition__container">
         <div class="transition__vertContainer">
           <div class="path__short"/>
           <div class="transition__bar"/>
           <div class="path__short"/>
-          <HoverControl
-            on_add_step={ctx.props().on_add_step.reform(move |_| TransitionId(id))}
-            on_add_parallel_intersection={ctx.props().on_add_parallel_intersection.reform(move |_| TransitionId(id))}
-            id={ctx.props().id.clone()}/>
+          <NetUserControl buttons={ctx.props().buttons.clone()}/>
         </div>
         <div class="transition__name-field">
           <textarea class="transition__name-field-text"

@@ -1,29 +1,34 @@
 use yew::prelude::*;
 
 use crate::{
-  components::graphcet::sequence::{
-    element::{
-      intersection::{BranchIndex, TransitionId},
-      step::StepProps,
-      transition::{Transition, TransitionProps},
-      Element, StepId,
+  components::{
+    graphcet::sequence::{
+      element::{
+        intersection::{BranchIndex, TransitionId},
+        step::StepProps,
+        transition::{Transition, TransitionProps},
+        Element, StepId,
+      },
+      Sequence, SequenceProps,
     },
-    hover_control::HoverControl,
-    Sequence, SequenceProps,
+    net_button::{NetButtonDirection, NetButtonProps},
+    net_user_control::NetUserControl,
   },
   services::uuid_service::UuidService,
 };
 
-use super::{IntersectionProps, IntersectionType};
+use super::{AddToLeft, IntersectionProps, IntersectionType};
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub(crate) struct ParallelIntersecionProps {
   pub exit_transition: TransitionProps,
   pub id: u128,
   pub branches: Vec<SequenceProps>,
-  pub on_append_transition_and_step: Callback<BranchIndex>,
+  pub on_prepend_element_pair: Callback<BranchIndex>,
+  pub on_append_element_pair: Callback<BranchIndex>,
   pub on_add_step_and_transition: Callback<(BranchIndex, TransitionId)>,
   pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
+  pub on_add_branch: Callback<(BranchIndex, AddToLeft)>,
 }
 
 impl Default for ParallelIntersecionProps {
@@ -39,9 +44,11 @@ impl Default for ParallelIntersecionProps {
         on_add_step_and_transition: Callback::noop(),
         on_add_parallel_intersection: Callback::noop(),
       }],
-      on_append_transition_and_step: Callback::noop(),
+      on_prepend_element_pair: Callback::noop(),
+      on_append_element_pair: Callback::noop(),
       on_add_step_and_transition: Callback::noop(),
       on_add_parallel_intersection: Callback::noop(),
+      on_add_branch: Callback::noop(),
     }
   }
 }
@@ -126,38 +133,73 @@ impl Component for ParallelIntersection {
           html! {
             <div class="intersection__grid-item">
               <div class="intersection__content-wrapper">
-                <div class="path__short path__short--margin-left"/>
-                  <Sequence
-                    elements={item.elements.clone()}
-                    on_add_step_and_transition={
-                      ctx
-                      .props().on_add_step_and_transition
-                      .reform(move |transition_id| (BranchIndex(index), transition_id))}
-                    on_add_parallel_intersection={
-                      ctx
-                      .props()
-                      .on_add_parallel_intersection
-                      .reform(move |step_id| (BranchIndex(index), step_id))
-                    }/>
+                <div class="
+                  path__short 
+                  path__short--margin-left 
+                  intersection__entry-menu">
+                  <NetUserControl
+                    buttons={vec![
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::West),
+                        button_text: "B".to_string(),
+                        on_click: ctx.props().on_add_branch.reform(move |_| (BranchIndex(index), AddToLeft(true))),
+                      },
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::South),
+                        button_text: "S".to_string(),
+                        on_click: ctx.props().on_prepend_element_pair.reform(move |_| BranchIndex(index)),
+                      },
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::East),
+                        button_text: "B".to_string(),
+                        on_click: ctx.props().on_add_branch.reform(move |_| (BranchIndex(index), AddToLeft(false))),
+                      },
+                    ]}/>
+                </div>
+                <Sequence
+                  elements={item.elements.clone()}
+                  on_add_step_and_transition={
+                    ctx
+                    .props().on_add_step_and_transition
+                    .reform(move |transition_id| (BranchIndex(index), transition_id))}
+                  on_add_parallel_intersection={
+                    ctx
+                    .props()
+                    .on_add_parallel_intersection
+                    .reform(move |step_id| (BranchIndex(index), step_id))
+                  }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
               <div class="intersection__hover-container">
-                <div class="path__short path__short--margin-left"/>
-                <HoverControl
-                  on_add_step={ctx.props().on_append_transition_and_step.reform(move |_| BranchIndex(index))}
-                  on_add_parallel_intersection={Callback::noop()}
-                  id={UuidService::new_index()}/>
+              <div class="
+                path__short 
+                path__short--margin-left 
+                intersection__entry-menu">
+                <NetUserControl
+                  buttons={vec![
+                    NetButtonProps {
+                      direction: Some(NetButtonDirection::North),
+                      button_text: "S".to_string(),
+                      on_click: ctx.props().on_append_element_pair.reform(move |_| BranchIndex(index)),
+                    },
+                  ]}/>
+            </div>
               </div>
             </div>
           }
         })}
       </div>
       <div class="intersection__parallel-branch-seperation-line"/>
-      <Transition
-        transitions={ctx.props().exit_transition.transitions.clone()}
-        id={ctx.props().exit_transition.id.clone()}
-        on_add_step={ctx.props().exit_transition.on_add_step.clone()}
-        on_add_parallel_intersection={ctx.props().exit_transition.on_add_parallel_intersection.clone()}/>
+        <Transition
+          transitions={ctx.props().exit_transition.transitions.clone()}
+          id={ctx.props().exit_transition.id.clone()}
+          buttons={vec![
+            NetButtonProps {
+              direction: Some(NetButtonDirection::South),
+              button_text: "S".to_string(),
+              on_click: Callback::noop(),
+            },
+          ]}/>
     </>}
   }
 }

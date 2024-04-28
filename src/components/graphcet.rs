@@ -43,8 +43,7 @@ impl Component for Graphcet {
         Element::Transition(TransitionProps {
           transitions: "X0".to_string(),
           id: UuidService::new_index(),
-          on_add_step: Callback::from(|_| ()),
-          on_add_parallel_intersection: Callback::noop(),
+          buttons: vec![],
         }),
         Element::Step(StepProps {
           id: UuidService::new_index(),
@@ -54,8 +53,7 @@ impl Component for Graphcet {
         Element::Transition(TransitionProps {
           transitions: "X1".to_string(),
           id: UuidService::new_index(),
-          on_add_step: Callback::from(|_| ()),
-          on_add_parallel_intersection: Callback::noop(),
+          buttons: vec![],
         }),
         Element::Intersection(IntersectionProps {
           id: UuidService::new_index(),
@@ -80,8 +78,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
@@ -112,8 +109,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
@@ -123,8 +119,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
               ],
               on_add_step_and_transition: Callback::from(|_| ()),
@@ -135,8 +130,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
@@ -146,8 +140,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
@@ -157,8 +150,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
               ],
               on_add_step_and_transition: Callback::from(|_| ()),
@@ -169,8 +161,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
@@ -180,8 +171,7 @@ impl Component for Graphcet {
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
                   id: UuidService::new_index(),
-                  on_add_step: Callback::from(|_| ()),
-                  on_add_parallel_intersection: Callback::noop(),
+                  buttons: vec![],
                 }),
               ],
               on_add_step_and_transition: Callback::from(|_| ()),
@@ -205,8 +195,7 @@ impl Component for Graphcet {
               Element::Transition(TransitionProps {
                 transitions: "X2".to_string(),
                 id: UuidService::new_index(),
-                on_add_step: Callback::from(|_| ()),
-                on_add_parallel_intersection: Callback::noop(),
+                buttons: vec![],
               }),
               Element::Step(StepProps {
                 id: UuidService::new_index(),
@@ -270,8 +259,7 @@ impl Component for Graphcet {
           let new_transition = Element::Transition(TransitionProps {
             id,
             transitions: "".to_string(),
-            on_add_step: Callback::noop(),
-            on_add_parallel_intersection: Callback::noop(),
+            buttons: vec![],
           });
           self.sequence.elements.insert(pos + 2, new_transition);
           return true;

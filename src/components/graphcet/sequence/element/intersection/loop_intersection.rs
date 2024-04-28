@@ -1,12 +1,16 @@
 use yew::prelude::*;
 
-use crate::components::graphcet::sequence::{
-  element::{
-    intersection::{BranchIndex, TransitionId},
-    transition::{Transition, TransitionProps},
-    StepId,
+use crate::components::{
+  graphcet::sequence::{
+    element::{
+      intersection::{BranchIndex, TransitionId},
+      transition::{Transition, TransitionProps},
+      StepId,
+    },
+    Sequence, SequenceProps,
   },
-  Sequence, SequenceProps,
+  net_button::{NetButtonDirection, NetButtonProps},
+  net_user_control::NetUserControl,
 };
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
@@ -15,6 +19,7 @@ pub struct LoopIntersectionProps {
   pub branches: Vec<SequenceProps>,
   pub continue_transition: TransitionProps,
   pub exit_transition: TransitionProps,
+  pub on_prepend_element_pair: Callback<BranchIndex>,
   pub on_append_step_and_transition: Callback<(BranchIndex, TransitionId)>,
   pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
 }
@@ -40,7 +45,19 @@ impl Component for LoopIntersection {
           html! {
             <div class="intersection__grid-item">
               <div class="intersection__content-wrapper">
-                <div class="path__short path__short--margin-left"/>
+                <div class="
+                  path__short 
+                  path__short--margin-left 
+                  intersection__entry-menu">
+                  <NetUserControl
+                    buttons={vec![
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::South),
+                        button_text: "S".to_string(),
+                        on_click: ctx.props().on_prepend_element_pair.reform(move |_| BranchIndex(index)),
+                      },
+                    ]}/>
+                </div>
                 <Sequence
                   key={index.clone()}
                   elements={item.elements.clone()}
@@ -68,8 +85,7 @@ impl Component for LoopIntersection {
           <Transition
             transitions={ctx.props().continue_transition.transitions.clone()}
             id={ctx.props().continue_transition.id.clone()}
-            on_add_step={ctx.props().continue_transition.on_add_step.clone()}
-            on_add_parallel_intersection={ctx.props().continue_transition.on_add_parallel_intersection.clone()}/>
+            buttons={vec![]}/>
           <div class="path__triangle_arrow_up"/>
           <div class="path__short path__short--margin-left"/>
         </div>
@@ -80,8 +96,7 @@ impl Component for LoopIntersection {
         <Transition
           transitions={ctx.props().exit_transition.clone()}
           id={ctx.props().exit_transition.id.clone()}
-          on_add_step={ctx.props().exit_transition.on_add_step.clone()}
-          on_add_parallel_intersection={ctx.props().exit_transition.on_add_parallel_intersection.clone()}/>
+          buttons={vec![]}/>
     </>}
   }
 }

@@ -1,10 +1,14 @@
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
-use crate::{components::graphcet::sequence::element::StepId, services::uuid_service::UuidService};
-
-mod step_hover_menu;
-use step_hover_menu::StepHoverMenu;
+use crate::{
+  components::{
+    graphcet::sequence::element::StepId,
+    net_button::{NetButtonDirection, NetButtonProps},
+    net_user_control::NetUserControl,
+  },
+  services::uuid_service::UuidService,
+};
 
 pub struct Step {
   action_name: String,
@@ -54,16 +58,16 @@ impl Component for Step {
     html! {
       <div class="step__container">
         <div class="step__number-field">
+          <NetUserControl
+            buttons={vec![
+              NetButtonProps {
+                direction: Some(NetButtonDirection::East),
+                button_text: "P".to_string(),
+                on_click: ctx.props().on_add_parallel_intersection.reform(move |_| id),
+              },
+            ]}/>
           // {ctx.props().id}
         </div>
-        <StepHoverMenu
-          on_add_parallel_intersection={
-            ctx
-            .props()
-            .on_add_parallel_intersection
-            .reform(move |_|id)
-          }
-        />
         <div class="step__horizontal-connector"/>
         <div class="action__container">
           <textarea

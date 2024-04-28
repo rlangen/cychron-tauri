@@ -41,14 +41,18 @@ impl Default for IntersectionType {
 }
 
 pub enum IntersectionMsg {
+  AddBranch((BranchIndex, AddToLeft)),
   AddStepAndTransition((BranchIndex, TransitionId)),
-  AppendTransitionAndStep(BranchIndex),
+  PrependElementPair(BranchIndex),
+  AppendElementPair(BranchIndex),
   AddParallelIntersection((BranchIndex, StepId)),
 }
 #[derive(Copy, Clone)]
 pub struct BranchIndex(pub usize);
 #[derive(Copy, Clone)]
 pub struct TransitionId(pub u128);
+#[derive(Copy, Clone)]
+pub struct AddToLeft(pub bool);
 
 pub struct Intersection {
   branches: Vec<SequenceProps>,
@@ -76,20 +80,36 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|data|IntersectionMsg::AddStepAndTransition(data))}
-            on_append_transition_and_step={
+            on_prepend_element_pair={
               ctx
               .link()
-              .callback(|branch_index|IntersectionMsg::AppendTransitionAndStep(branch_index))}
+              .callback(|branch_index|IntersectionMsg::PrependElementPair(branch_index))}
+            on_append_element_pair={
+              ctx
+              .link()
+              .callback(|branch_index|IntersectionMsg::AppendElementPair(branch_index))}
             on_add_parallel_intersection={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AddParallelIntersection(data))
-            }/>
+              .callback(|data|IntersectionMsg::AddParallelIntersection(data))}
+            on_add_branch={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::AddBranch(data))}
+            />
         },
         IntersectionType::AlternativeBranches => html! {
           <AlternativeIntersection
             branches={self.branches.clone()}
             id={UuidService::new_index()}
+            on_add_branch={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::AddBranch(data))}
+            on_prepend_element_pair={
+              ctx
+              .link()
+              .callback(|branch_index|IntersectionMsg::PrependElementPair(branch_index))}
             on_append_step_and_transition={
               ctx
               .link()
@@ -106,14 +126,18 @@ impl Component for Intersection {
             continue_transition={continue_transition.clone()}
             exit_transition={exit_transition.clone()}
             id={UuidService::new_index()}
+            on_prepend_element_pair={
+              ctx
+              .link()
+              .callback(|branch_index|IntersectionMsg::PrependElementPair(branch_index))}
             on_append_step_and_transition={
               ctx
               .link()
               .callback(|data|IntersectionMsg::AddStepAndTransition(data))}
-              on_add_parallel_intersection={
-                ctx
-                .link()
-                .callback(|data|IntersectionMsg::AddParallelIntersection(data))
+            on_add_parallel_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::AddParallelIntersection(data))
               }/>
         },
       }}
@@ -145,13 +169,7 @@ impl Component for Intersection {
           let new_transition = Element::Transition(TransitionProps {
             id,
             transitions: "".to_string(),
-            on_add_step: ctx.link().callback(move |_| {
-              IntersectionMsg::AddStepAndTransition((
-                BranchIndex(branch_index),
-                TransitionId(transition_id),
-              ))
-            }),
-            on_add_parallel_intersection: Callback::noop(),
+            buttons: vec![],
           });
           self.branches[branch_index]
             .elements
@@ -163,17 +181,14 @@ impl Component for Intersection {
         return false;
       }
 
-      IntersectionMsg::AppendTransitionAndStep(branch_index) => {
+      IntersectionMsg::AppendElementPair(branch_index) => {
         let branch_index_number = branch_index.0;
 
         let id = UuidService::new_index();
         let new_transition = Element::Transition(TransitionProps {
           id,
           transitions: "".to_string(),
-          on_add_step: ctx.link().callback(move |_| {
-            IntersectionMsg::AddStepAndTransition((branch_index, TransitionId(id)))
-          }),
-          on_add_parallel_intersection: Callback::noop(),
+          buttons: vec![],
         });
         self.branches[branch_index_number]
           .elements
@@ -220,6 +235,65 @@ impl Component for Intersection {
             }
           },
         }
+      }
+
+      IntersectionMsg::AddBranch((branch_index, add_to_left)) => {
+        let new_sequence;
+        match ctx.props().intersection_type {
+          IntersectionType::ParallelBranches(_) => {
+            new_sequence = SequenceProps {
+              elements: vec![Element::Step(StepProps::default())],
+              on_add_step_and_transition: Callback::noop(),
+              on_add_parallel_intersection: Callback::noop(),
+            };
+          }
+          IntersectionType::AlternativeBranches => {
+            new_sequence = SequenceProps {
+              elements: vec![
+                Element::Transition(TransitionProps::default()),
+                Element::Step(StepProps::default()),
+                Element::Transition(TransitionProps::default()),
+              ],
+              on_add_step_and_transition: Callback::noop(),
+              on_add_parallel_intersection: Callback::noop(),
+            };
+          }
+          IntersectionType::LoopBranches(_, _) => {
+            Log::error::<Self>("Failed to add branch. Loop branches not supported.");
+            return false;
+          }
+        }
+
+        if add_to_left.0 {
+          self.branches.insert(branch_index.0, new_sequence);
+        } else {
+          self.branches.insert(branch_index.0 + 1, new_sequence);
+        }
+        true
+      }
+
+      IntersectionMsg::PrependElementPair(branch_index) => {
+        match ctx.props().intersection_type {
+          IntersectionType::ParallelBranches(_) | IntersectionType::LoopBranches(_, _) => {
+            self.branches[branch_index.0]
+              .elements
+              .insert(0, Element::Step(StepProps::default()));
+            if self.branches[branch_index.0].elements.len() > 1 {
+              self.branches[branch_index.0]
+                .elements
+                .insert(1, Element::Transition(TransitionProps::default()));
+            }
+          }
+          IntersectionType::AlternativeBranches => {
+            self.branches[branch_index.0]
+              .elements
+              .insert(0, Element::Transition(TransitionProps::default()));
+            self.branches[branch_index.0]
+              .elements
+              .insert(1, Element::Step(StepProps::default()));
+          }
+        }
+        true
       }
     }
   }

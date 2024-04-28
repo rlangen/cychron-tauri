@@ -31,6 +31,16 @@
   flex-grow: 1;
 }
 
+.intersection__entry-menu {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.intersection__entry-menu:hover .net-hover-menu__container {
+  display: grid;
+  margin-left: 0px;
+}
+
 .intersection__parallel-branch-seperation-line{
   border-top: double 6px black;
   height: var(--path__line-width);

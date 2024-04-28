@@ -1,17 +1,25 @@
 use yew::prelude::*;
 
-use crate::components::graphcet::sequence::{
-  element::{
-    intersection::{BranchIndex, TransitionId},
-    StepId,
+use crate::components::{
+  graphcet::sequence::{
+    element::{
+      intersection::{BranchIndex, TransitionId},
+      StepId,
+    },
+    Sequence, SequenceProps,
   },
-  Sequence, SequenceProps,
+  net_button::{NetButtonDirection, NetButtonProps},
+  net_user_control::NetUserControl,
 };
+
+use super::AddToLeft;
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct AlternativeIntersectionProps {
   pub id: u128,
   pub branches: Vec<SequenceProps>,
+  pub on_add_branch: Callback<(BranchIndex, AddToLeft)>,
+  pub on_prepend_element_pair: Callback<BranchIndex>,
   pub on_append_step_and_transition: Callback<(BranchIndex, TransitionId)>,
   pub on_add_parallel_intersection: Callback<(BranchIndex, StepId)>,
 }
@@ -37,7 +45,29 @@ impl Component for AlternativeIntersection {
           html! {
             <div class="intersection__grid-item">
               <div class="intersection__content-wrapper">
-                <div class="path__short path__short--margin-left"/>
+                <div class="
+                  path__short 
+                  path__short--margin-left 
+                  intersection__entry-menu">
+                  <NetUserControl
+                    buttons={vec![
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::West),
+                        button_text: "B".to_string(),
+                        on_click: ctx.props().on_add_branch.reform(move |_| (BranchIndex(index), AddToLeft(true))),
+                      },
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::South),
+                        button_text: "S".to_string(),
+                        on_click: ctx.props().on_prepend_element_pair.reform(move |_| BranchIndex(index)),
+                      },
+                      NetButtonProps {
+                        direction: Some(NetButtonDirection::East),
+                        button_text: "B".to_string(),
+                        on_click: ctx.props().on_add_branch.reform(move |_| (BranchIndex(index), AddToLeft(false))),
+                      },
+                    ]}/>
+                </div>
                 <Sequence
                   key={index.clone()}
                   elements={item.elements.clone()}
