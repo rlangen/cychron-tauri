@@ -1,6 +1,9 @@
 use yew::prelude::*;
 
-use self::parallel_intersection::ParallelIntersectionAddErr;
+use self::{
+  alternative_intersection::AlternativeIntersectionAddError,
+  parallel_intersection::ParallelIntersectionAddErr,
+};
 
 use super::{transition::TransitionProps, StepId};
 use crate::{
@@ -14,7 +17,7 @@ use crate::{
 pub(crate) mod parallel_intersection;
 use parallel_intersection::ParallelIntersection;
 
-mod alternative_intersection;
+pub(crate) mod alternative_intersection;
 use alternative_intersection::AlternativeIntersection;
 
 mod loop_intersection;
@@ -52,6 +55,7 @@ pub enum IntersectionMsg {
   AttachElementPairToIntersection((BranchIndex, IntersectionId)),
 
   InsertParallelIntersection((BranchIndex, StepId)),
+  InsertAlternativeIntersection((BranchIndex, TransitionId)),
 }
 #[derive(Copy, Clone)]
 pub struct BranchIndex(pub usize);
@@ -116,7 +120,11 @@ impl Component for Intersection {
               .link()
               .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))
             }
-            />
+            on_insert_alternative_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::InsertAlternativeIntersection(data))
+            }/>
         },
         IntersectionType::AlternativeBranches => html! {
           <AlternativeIntersection
@@ -138,6 +146,11 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|data|IntersectionMsg::InsertParallelIntersection(data))
+            }
+            on_insert_alternative_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::InsertAlternativeIntersection(data))
             }
             on_pass_attach_element_pair_to_intersection={
               ctx
@@ -162,6 +175,11 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|data|IntersectionMsg::InsertParallelIntersection(data))}
+            on_insert_alternative_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::InsertAlternativeIntersection(data))
+            }
             on_pass_attach_element_pair_to_intersection={
               ctx
               .link()
@@ -272,6 +290,7 @@ impl Component for Intersection {
               elements: vec![Element::Step(StepProps::default())],
               on_insert_element_pair: Callback::noop(),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             };
           }
@@ -284,6 +303,7 @@ impl Component for Intersection {
               ],
               on_insert_element_pair: Callback::noop(),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             };
           }
@@ -329,6 +349,29 @@ impl Component for Intersection {
           &mut self.branches[branch_index.0].elements,
           intersection_id,
         )
+      }
+      IntersectionMsg::InsertAlternativeIntersection((branch_index, transition_id)) => {
+        return match AlternativeIntersection::add(&mut self.branches[branch_index.0], transition_id)
+        {
+          Ok(needs_update) => needs_update.0,
+          Err(err) => {
+            match err {
+              AlternativeIntersectionAddError::TransitionNotFound => {
+                Log::error::<Self>("Failed to add alternative intersection. Transition not found.");
+              }
+              AlternativeIntersectionAddError::NoStepAfterTransition => {
+                Log::error::<Self>(
+                  "Failed to add alternative intersection. No step after transition.",
+                );
+              }
+              AlternativeIntersectionAddError::NoTransitionAtEnd => {
+                Log::error::<Self>("Failed to add alternative intersection. No transition at end.");
+              }
+            }
+
+            false
+          }
+        }
       }
     }
   }

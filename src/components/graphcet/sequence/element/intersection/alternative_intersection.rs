@@ -1,16 +1,21 @@
 use yew::prelude::*;
 
 use crate::components::{
+  component_tuple_structs::NeedsRerendering,
   graphcet::sequence::{
     element::{
       intersection::{AddToLeft, BranchIndex, IntersectionId, TransitionId},
-      StepId,
+      step::StepProps,
+      transition::TransitionProps,
+      Element, StepId,
     },
     Sequence, SequenceProps,
   },
   net_button::{NetButtonDirection, NetButtonProps},
   net_user_control::NetUserControl,
 };
+
+use super::{IntersectionProps, IntersectionType};
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct AlternativeIntersectionProps {
@@ -24,9 +29,77 @@ pub struct AlternativeIntersectionProps {
   pub on_pass_attach_element_pair_to_intersection: Callback<(BranchIndex, IntersectionId)>,
 
   pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
+  pub on_insert_alternative_intersection: Callback<(BranchIndex, TransitionId)>,
 }
 
-pub(super) struct AlternativeIntersection;
+pub(crate) struct AlternativeIntersection;
+impl AlternativeIntersection {
+  pub fn add(
+    sequence: &mut SequenceProps,
+    transition_id: TransitionId,
+  ) -> Result<NeedsRerendering, AlternativeIntersectionAddError> {
+    if let Some(pos) = sequence
+      .elements
+      .iter()
+      .position(|x| transition_id.0 == x.get_id())
+    {
+      match sequence.elements.get(pos) {
+        Some(Element::Transition(_)) => {}
+        _ => return Err(AlternativeIntersectionAddError::TransitionNotFound),
+      }
+      match sequence.elements.get(pos + 1) {
+        Some(Element::Step(_)) => {}
+        _ => return Err(AlternativeIntersectionAddError::NoStepAfterTransition),
+      }
+      match sequence.elements.get(pos + 2) {
+        Some(Element::Transition(_)) => {}
+        _ => return Err(AlternativeIntersectionAddError::NoTransitionAtEnd),
+      }
+
+      let entry_transition = sequence.elements.remove(pos);
+      let step = sequence.elements.remove(pos);
+      let exi_transition = sequence.elements.remove(pos);
+
+      let new_alternative_intersection = Element::Intersection(IntersectionProps {
+        id: 0,
+        intersection_type: IntersectionType::AlternativeBranches,
+        branches: vec![
+          SequenceProps {
+            elements: vec![entry_transition, step, exi_transition],
+            on_insert_element_pair: Callback::noop(),
+            on_insert_parallel_intersection: Callback::noop(),
+            on_insert_alternative_intersection: Callback::noop(),
+            on_attach_element_pair_to_intersection: Callback::noop(),
+          },
+          SequenceProps {
+            elements: vec![
+              Element::Transition(TransitionProps::default()),
+              Element::Step(StepProps::default()),
+              Element::Transition(TransitionProps::default()),
+            ],
+            on_insert_element_pair: Callback::noop(),
+            on_insert_parallel_intersection: Callback::noop(),
+            on_insert_alternative_intersection: Callback::noop(),
+            on_attach_element_pair_to_intersection: Callback::noop(),
+          },
+        ],
+        on_attach_element_pair_to_intersection: Callback::noop(),
+      });
+
+      sequence.elements.insert(pos, new_alternative_intersection);
+
+      return Ok(NeedsRerendering(true));
+      // todo!();
+    } else {
+      return Err(AlternativeIntersectionAddError::TransitionNotFound);
+    }
+  }
+}
+pub enum AlternativeIntersectionAddError {
+  TransitionNotFound,
+  NoStepAfterTransition,
+  NoTransitionAtEnd,
+}
 
 impl Component for AlternativeIntersection {
   type Message = ();
@@ -90,6 +163,12 @@ impl Component for AlternativeIntersection {
                     .props()
                     .on_pass_attach_element_pair_to_intersection
                     .reform(move |intersection_id| (BranchIndex(index), intersection_id))
+                  }
+                  on_insert_alternative_intersection={
+                    ctx
+                    .props()
+                    .on_insert_alternative_intersection
+                    .reform(move |transition_id| (BranchIndex(index), transition_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>

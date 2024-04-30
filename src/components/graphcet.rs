@@ -5,7 +5,10 @@ use crate::services::{logging_service::Log, uuid_service::UuidService};
 mod sequence;
 use sequence::{
   element::{
-    intersection::{IntersectionProps, IntersectionType, TransitionId},
+    intersection::{
+      alternative_intersection::{AlternativeIntersection, AlternativeIntersectionAddError},
+      IntersectionProps, IntersectionType, TransitionId,
+    },
     step::StepProps,
     transition::TransitionProps,
     Element,
@@ -24,6 +27,7 @@ use self::sequence::element::{
 pub enum GraphcetMsg {
   InsertElementPair(TransitionId),
   InsertParallelIntersection(StepId),
+  InsertAlternativeIntersection(TransitionId),
   AttachElementPairToIntersection(IntersectionId),
 }
 
@@ -71,6 +75,7 @@ impl Component for Graphcet {
               })],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -93,6 +98,7 @@ impl Component for Graphcet {
               ],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -103,6 +109,7 @@ impl Component for Graphcet {
               })],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
           ],
@@ -132,6 +139,7 @@ impl Component for Graphcet {
               ],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -164,6 +172,7 @@ impl Component for Graphcet {
               ],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -186,6 +195,7 @@ impl Component for Graphcet {
               ],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
+              on_insert_alternative_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
           ],
@@ -217,6 +227,7 @@ impl Component for Graphcet {
             ],
             on_insert_element_pair: Callback::from(|_| ()),
             on_insert_parallel_intersection: Callback::noop(),
+            on_insert_alternative_intersection: Callback::noop(),
             on_attach_element_pair_to_intersection: Callback::noop(),
           }],
           on_attach_element_pair_to_intersection: Callback::noop(),
@@ -229,6 +240,7 @@ impl Component for Graphcet {
       ],
       on_insert_element_pair: Callback::from(|_| ()),
       on_insert_parallel_intersection: Callback::noop(),
+      on_insert_alternative_intersection: Callback::noop(),
       on_attach_element_pair_to_intersection: Callback::noop(),
     };
     Self {
@@ -254,6 +266,11 @@ impl Component for Graphcet {
           _ctx
           .link()
           .callback(|data|GraphcetMsg::AttachElementPairToIntersection(data))
+        }
+        on_insert_alternative_intersection={
+          _ctx
+          .link()
+          .callback(|data|GraphcetMsg::InsertAlternativeIntersection(data))
         }/>
     }
   }
@@ -308,6 +325,28 @@ impl Component for Graphcet {
 
       GraphcetMsg::AttachElementPairToIntersection(intersection_id) => {
         Sequence::attach_element_pair_to_intersection(&mut self.sequence.elements, intersection_id)
+      }
+      GraphcetMsg::InsertAlternativeIntersection(transition_id) => {
+        return match AlternativeIntersection::add(&mut self.sequence, transition_id) {
+          Ok(needs_update) => needs_update.0,
+          Err(err) => {
+            match err {
+              AlternativeIntersectionAddError::TransitionNotFound => {
+                Log::error::<Self>("Failed to add alternative intersection. Transition not found.");
+              }
+              AlternativeIntersectionAddError::NoStepAfterTransition => {
+                Log::error::<Self>(
+                  "Failed to add alternative intersection. No step after transition.",
+                );
+              }
+              AlternativeIntersectionAddError::NoTransitionAtEnd => {
+                Log::error::<Self>("Failed to add alternative intersection. No transition at end.");
+              }
+            }
+
+            false
+          }
+        }
       }
     }
   }

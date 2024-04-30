@@ -20,6 +20,7 @@ pub struct SequenceProps {
   pub elements: Vec<Element>,
   pub on_insert_element_pair: Callback<TransitionId>,
   pub on_insert_parallel_intersection: Callback<StepId>,
+  pub on_insert_alternative_intersection: Callback<TransitionId>,
   pub on_attach_element_pair_to_intersection: Callback<IntersectionId>,
 }
 impl IntoPropValue<Vec<Element>> for SequenceProps {
@@ -74,17 +75,27 @@ impl Component for Sequence {
             },
             Element::Transition(transition_props) => {
               let id = transition_props.id.clone();
+
+              let mut buttons = Vec::<NetButtonProps>::with_capacity(2);
+              buttons.push(NetButtonProps {
+                direction: Some(NetButtonDirection::South),
+                button_text: "S".to_string(),
+                on_click: ctx.props().on_insert_element_pair.reform(move |_| TransitionId(id)),
+              });
+              // It doesn't make sense to add an alternative intersection before a transition which has no following step or intersection
+              if index != ctx.props().elements.len() - 1 {
+                buttons.push(NetButtonProps {
+                  direction: Some(NetButtonDirection::NorthEast),
+                  button_text: "A".to_string(),
+                  on_click: ctx.props().on_insert_alternative_intersection.reform(move |_| TransitionId(id)),
+                });
+              }
+
               html! {
                 <Transition
                   transitions={transition_props.transitions.clone()}
                   id={transition_props.id.clone()}
-                  buttons={vec![
-                    NetButtonProps {
-                      direction: Some(NetButtonDirection::South),
-                      button_text: "S".to_string(),
-                      on_click: ctx.props().on_insert_element_pair.reform(move |_| TransitionId(id)),
-                    },
-                  ]}/>
+                  buttons={buttons}/>
               }
             },
             Element::Intersection(intersection_props) => html! {

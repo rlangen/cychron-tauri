@@ -26,6 +26,7 @@ pub struct LoopIntersectionProps {
   pub on_pass_attach_element_pair_to_intersection: Callback<(BranchIndex, IntersectionId)>,
 
   pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
+  pub on_insert_alternative_intersection: Callback<(BranchIndex, TransitionId)>,
 }
 
 pub(super) struct LoopIntersection;
@@ -82,6 +83,12 @@ impl Component for LoopIntersection {
                     .props()
                     .on_pass_attach_element_pair_to_intersection
                     .reform(move |intersection_id| (BranchIndex(index), intersection_id))
+                  }
+                  on_insert_alternative_intersection={
+                    ctx
+                    .props()
+                    .on_insert_alternative_intersection
+                    .reform(move |transition_id| (BranchIndex(index), transition_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
