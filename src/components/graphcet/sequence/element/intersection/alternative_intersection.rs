@@ -16,6 +16,7 @@ use crate::components::{
 };
 
 use super::{IntersectionProps, IntersectionType};
+pub mod alternative_intersection_behaviour;
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct AlternativeIntersectionProps {
@@ -34,28 +35,12 @@ pub struct AlternativeIntersectionProps {
 
 pub(crate) struct AlternativeIntersection;
 impl AlternativeIntersection {
-  pub fn add(
-    sequence: &mut SequenceProps,
-    transition_id: TransitionId,
-  ) -> Result<NeedsRerendering, AlternativeIntersectionAddError> {
+  pub fn add(sequence: &mut SequenceProps, transition_id: TransitionId) -> NeedsRerendering {
     if let Some(pos) = sequence
       .elements
       .iter()
       .position(|x| transition_id.0 == x.get_id())
     {
-      match sequence.elements.get(pos) {
-        Some(Element::Transition(_)) => {}
-        _ => return Err(AlternativeIntersectionAddError::TransitionNotFound),
-      }
-      match sequence.elements.get(pos + 1) {
-        Some(Element::Step(_)) => {}
-        _ => return Err(AlternativeIntersectionAddError::NoStepAfterTransition),
-      }
-      match sequence.elements.get(pos + 2) {
-        Some(Element::Transition(_)) => {}
-        _ => return Err(AlternativeIntersectionAddError::NoTransitionAtEnd),
-      }
-
       let entry_transition = sequence.elements.remove(pos);
       let step = sequence.elements.remove(pos);
       let exi_transition = sequence.elements.remove(pos);
@@ -88,17 +73,11 @@ impl AlternativeIntersection {
 
       sequence.elements.insert(pos, new_alternative_intersection);
 
-      return Ok(NeedsRerendering(true));
-      // todo!();
+      return NeedsRerendering(true);
     } else {
-      return Err(AlternativeIntersectionAddError::TransitionNotFound);
+      return NeedsRerendering(false);
     }
   }
-}
-pub enum AlternativeIntersectionAddError {
-  TransitionNotFound,
-  NoStepAfterTransition,
-  NoTransitionAtEnd,
 }
 
 impl Component for AlternativeIntersection {

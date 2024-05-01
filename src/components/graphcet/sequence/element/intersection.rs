@@ -1,9 +1,6 @@
 use yew::prelude::*;
 
-use self::{
-  alternative_intersection::AlternativeIntersectionAddError,
-  parallel_intersection::ParallelIntersectionAddErr,
-};
+use self::parallel_intersection::ParallelIntersectionAddErr;
 
 use super::{transition::TransitionProps, StepId};
 use crate::{
@@ -351,27 +348,12 @@ impl Component for Intersection {
         )
       }
       IntersectionMsg::InsertAlternativeIntersection((branch_index, transition_id)) => {
-        return match AlternativeIntersection::add(&mut self.branches[branch_index.0], transition_id)
-        {
-          Ok(needs_update) => needs_update.0,
-          Err(err) => {
-            match err {
-              AlternativeIntersectionAddError::TransitionNotFound => {
-                Log::error::<Self>("Failed to add alternative intersection. Transition not found.");
-              }
-              AlternativeIntersectionAddError::NoStepAfterTransition => {
-                Log::error::<Self>(
-                  "Failed to add alternative intersection. No step after transition.",
-                );
-              }
-              AlternativeIntersectionAddError::NoTransitionAtEnd => {
-                Log::error::<Self>("Failed to add alternative intersection. No transition at end.");
-              }
-            }
-
-            false
-          }
+        let should_rerender =
+          AlternativeIntersection::add(&mut self.branches[branch_index.0], transition_id);
+        if !should_rerender.0 {
+          Log::error::<Self>("Transition to add alternative intersection not found");
         }
+        return should_rerender.0;
       }
     }
   }

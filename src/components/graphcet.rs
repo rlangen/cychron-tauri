@@ -6,8 +6,8 @@ mod sequence;
 use sequence::{
   element::{
     intersection::{
-      alternative_intersection::{AlternativeIntersection, AlternativeIntersectionAddError},
-      IntersectionProps, IntersectionType, TransitionId,
+      alternative_intersection::AlternativeIntersection, IntersectionProps, IntersectionType,
+      TransitionId,
     },
     step::StepProps,
     transition::TransitionProps,
@@ -327,26 +327,11 @@ impl Component for Graphcet {
         Sequence::attach_element_pair_to_intersection(&mut self.sequence.elements, intersection_id)
       }
       GraphcetMsg::InsertAlternativeIntersection(transition_id) => {
-        return match AlternativeIntersection::add(&mut self.sequence, transition_id) {
-          Ok(needs_update) => needs_update.0,
-          Err(err) => {
-            match err {
-              AlternativeIntersectionAddError::TransitionNotFound => {
-                Log::error::<Self>("Failed to add alternative intersection. Transition not found.");
-              }
-              AlternativeIntersectionAddError::NoStepAfterTransition => {
-                Log::error::<Self>(
-                  "Failed to add alternative intersection. No step after transition.",
-                );
-              }
-              AlternativeIntersectionAddError::NoTransitionAtEnd => {
-                Log::error::<Self>("Failed to add alternative intersection. No transition at end.");
-              }
-            }
-
-            false
-          }
+        let should_rerender = AlternativeIntersection::add(&mut self.sequence, transition_id);
+        if !should_rerender.0 {
+          Log::error::<Self>("Transition to add alternative intersection not found");
         }
+        return should_rerender.0;
       }
     }
   }

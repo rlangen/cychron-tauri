@@ -9,7 +9,7 @@ use element::{
 };
 
 use crate::{
-  components::net_button::{NetButtonDirection, NetButtonProps},
+  components::{graphcet::sequence::element::intersection::alternative_intersection::alternative_intersection_behaviour::AlternativeIntersectionBehaviour, net_button::{NetButtonDirection, NetButtonProps}},
   services::logging_service::Log,
 };
 
@@ -82,15 +82,13 @@ impl Component for Sequence {
                 button_text: "S".to_string(),
                 on_click: ctx.props().on_insert_element_pair.reform(move |_| TransitionId(id)),
               });
-              // It doesn't make sense to add an alternative intersection before a transition which has no following step or intersection
-              if index != ctx.props().elements.len() - 1 {
+              if AlternativeIntersectionBehaviour::should_be_viewed(ctx.props(), id) {
                 buttons.push(NetButtonProps {
                   direction: Some(NetButtonDirection::NorthEast),
                   button_text: "A".to_string(),
                   on_click: ctx.props().on_insert_alternative_intersection.reform(move |_| TransitionId(id)),
                 });
               }
-
               html! {
                 <Transition
                   transitions={transition_props.transitions.clone()}
