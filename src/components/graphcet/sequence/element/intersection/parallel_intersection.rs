@@ -34,6 +34,7 @@ pub(crate) struct ParallelIntersecionProps {
 
   pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
   pub on_insert_alternative_intersection: Callback<(BranchIndex, TransitionId)>,
+  pub on_insert_loop_intersection: Callback<(BranchIndex, StepId)>,
 
   pub on_add_branch: Callback<(BranchIndex, AddToLeft)>,
 }
@@ -52,6 +53,7 @@ impl Default for ParallelIntersecionProps {
         on_insert_parallel_intersection: Callback::noop(),
         on_insert_alternative_intersection: Callback::noop(),
         on_attach_element_pair_to_intersection: Callback::noop(),
+        on_insert_loop_intersection: Callback::noop(),
       }],
       on_prepend_element_pair: Callback::noop(),
       on_append_element_pair: Callback::noop(),
@@ -61,6 +63,7 @@ impl Default for ParallelIntersecionProps {
 
       on_insert_parallel_intersection: Callback::noop(),
       on_insert_alternative_intersection: Callback::noop(),
+      on_insert_loop_intersection: Callback::noop(),
 
       on_add_branch: Callback::noop(),
       on_pass_attach_element_pair_to_intersection: Callback::noop(),
@@ -105,6 +108,7 @@ impl ParallelIntersection {
         on_insert_parallel_intersection: Callback::noop(),
         on_attach_element_pair_to_intersection: Callback::noop(),
         on_insert_alternative_intersection: Callback::noop(),
+        on_insert_loop_intersection: Callback::noop(),
       };
 
       let new_parallel_intersection = IntersectionProps {
@@ -118,6 +122,7 @@ impl ParallelIntersection {
             on_insert_parallel_intersection: Callback::noop(),
             on_attach_element_pair_to_intersection: Callback::noop(),
             on_insert_alternative_intersection: Callback::noop(),
+            on_insert_loop_intersection: Callback::noop(),
           },
         ],
         on_attach_element_pair_to_intersection: Callback::noop(),
@@ -198,6 +203,12 @@ impl Component for ParallelIntersection {
                     .props()
                     .on_insert_alternative_intersection
                     .reform(move |transition_id| (BranchIndex(index), transition_id))
+                  }
+                  on_insert_loop_intersection={
+                    ctx
+                    .props()
+                    .on_insert_loop_intersection
+                    .reform(move |step_id| (BranchIndex(index), step_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>

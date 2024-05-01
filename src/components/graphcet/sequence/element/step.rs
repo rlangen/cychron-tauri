@@ -3,8 +3,7 @@ use yew::prelude::*;
 
 use crate::{
   components::{
-    graphcet::sequence::element::StepId,
-    net_button::{NetButtonDirection, NetButtonProps},
+    graphcet::sequence::element::StepId, net_button::NetButtonProps,
     net_user_control::NetUserControl,
   },
   services::uuid_service::UuidService,
@@ -23,13 +22,17 @@ pub struct StepProps {
   pub id: u128,
   pub action_name: String,
   pub on_insert_parallel_intersection: Callback<StepId>,
+  pub on_insert_loop_intersection: Callback<StepId>,
+  pub buttons: Vec<NetButtonProps>,
 }
 impl Default for StepProps {
   fn default() -> Self {
     Self {
       id: UuidService::new_index(),
       action_name: String::from(""),
+      buttons: vec![],
       on_insert_parallel_intersection: Callback::noop(),
+      on_insert_loop_intersection: Callback::noop(),
     }
   }
 }
@@ -54,18 +57,10 @@ impl Component for Step {
   }
 
   fn view(&self, ctx: &Context<Self>) -> Html {
-    let id = StepId(ctx.props().id);
     html! {
       <div class="step__container">
         <div class="step__number-field">
-          <NetUserControl
-            buttons={vec![
-              NetButtonProps {
-                direction: Some(NetButtonDirection::East),
-                button_text: "P".to_string(),
-                on_click: ctx.props().on_insert_parallel_intersection.reform(move |_| id),
-              },
-            ]}/>
+          <NetUserControl buttons={ctx.props().buttons.clone()}/>
           // {ctx.props().id}
         </div>
         <div class="step__horizontal-connector"/>

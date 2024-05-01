@@ -1,6 +1,9 @@
 use yew::prelude::*;
 
-use self::parallel_intersection::ParallelIntersectionAddErr;
+use self::{
+  loop_intersection_behaviour::LoopIntersectionBehaviour,
+  parallel_intersection::ParallelIntersectionAddErr,
+};
 
 use super::{transition::TransitionProps, StepId};
 use crate::{
@@ -19,6 +22,9 @@ use alternative_intersection::AlternativeIntersection;
 
 mod loop_intersection;
 use loop_intersection::LoopIntersection;
+
+pub(crate) mod alternative_intersection_behaviour;
+pub(crate) mod loop_intersection_behaviour;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum IntersectionType {
@@ -53,6 +59,7 @@ pub enum IntersectionMsg {
 
   InsertParallelIntersection((BranchIndex, StepId)),
   InsertAlternativeIntersection((BranchIndex, TransitionId)),
+  InsertLoopIntersection((BranchIndex, StepId)),
 }
 #[derive(Copy, Clone)]
 pub struct BranchIndex(pub usize);
@@ -121,6 +128,11 @@ impl Component for Intersection {
               ctx
               .link()
               .callback(|data|IntersectionMsg::InsertAlternativeIntersection(data))
+            }
+            on_insert_loop_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::InsertLoopIntersection(data))
             }/>
         },
         IntersectionType::AlternativeBranches => html! {
@@ -152,7 +164,12 @@ impl Component for Intersection {
             on_pass_attach_element_pair_to_intersection={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))}/>
+              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))}
+              on_insert_loop_intersection={
+                ctx
+                .link()
+                .callback(|data|IntersectionMsg::InsertLoopIntersection(data))
+              }/>
         },
         IntersectionType::LoopBranches(continue_transition, exit_transition) => html! {
           <LoopIntersection
@@ -180,7 +197,12 @@ impl Component for Intersection {
             on_pass_attach_element_pair_to_intersection={
               ctx
               .link()
-              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))}/>
+              .callback(|data|IntersectionMsg::AttachElementPairToIntersection(data))}
+            on_insert_loop_intersection={
+              ctx
+              .link()
+              .callback(|data|IntersectionMsg::InsertLoopIntersection(data))
+            }/>
         },
       }}
     </div>}
@@ -201,7 +223,9 @@ impl Component for Intersection {
           let new_element = Element::Step(StepProps {
             id,
             action_name: "".to_string(),
+            buttons: vec![],
             on_insert_parallel_intersection: Callback::noop(),
+            on_insert_loop_intersection: Callback::noop(),
           });
           self.branches[branch_index]
             .elements
@@ -240,7 +264,9 @@ impl Component for Intersection {
         let new_step = Element::Step(StepProps {
           id,
           action_name: "".to_string(),
+          buttons: vec![],
           on_insert_parallel_intersection: Callback::noop(),
+          on_insert_loop_intersection: Callback::noop(),
         });
         self.branches[branch_index_number].elements.push(new_step);
 
@@ -288,6 +314,7 @@ impl Component for Intersection {
               on_insert_element_pair: Callback::noop(),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             };
           }
@@ -301,6 +328,7 @@ impl Component for Intersection {
               on_insert_element_pair: Callback::noop(),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             };
           }
@@ -354,6 +382,9 @@ impl Component for Intersection {
           Log::error::<Self>("Transition to add alternative intersection not found");
         }
         return should_rerender.0;
+      }
+      IntersectionMsg::InsertLoopIntersection((branch_index, step_id)) => {
+        return LoopIntersectionBehaviour::add(&mut self.branches[branch_index.0], step_id).0;
       }
     }
   }

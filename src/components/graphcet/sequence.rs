@@ -9,7 +9,13 @@ use element::{
 };
 
 use crate::{
-  components::{graphcet::sequence::element::intersection::alternative_intersection::alternative_intersection_behaviour::AlternativeIntersectionBehaviour, net_button::{NetButtonDirection, NetButtonProps}},
+  components::{
+    graphcet::sequence::element::intersection::{
+      alternative_intersection_behaviour::AlternativeIntersectionBehaviour,
+      loop_intersection_behaviour::LoopIntersectionBehaviour,
+    },
+    net_button::{NetButtonDirection, NetButtonProps},
+  },
   services::logging_service::Log,
 };
 
@@ -21,6 +27,7 @@ pub struct SequenceProps {
   pub on_insert_element_pair: Callback<TransitionId>,
   pub on_insert_parallel_intersection: Callback<StepId>,
   pub on_insert_alternative_intersection: Callback<TransitionId>,
+  pub on_insert_loop_intersection: Callback<StepId>,
   pub on_attach_element_pair_to_intersection: Callback<IntersectionId>,
 }
 impl IntoPropValue<Vec<Element>> for SequenceProps {
@@ -66,13 +73,34 @@ impl Component for Sequence {
       <div class="sequence__container">
         {for ctx.props().elements.iter().enumerate().map(|(index, item)| {
           match item {
-            Element::Step(step_props) => html! {
-              <Step
-                key={index.clone()}
-                id={step_props.id.clone()}
-                action_name={step_props.action_name.clone()}
-                on_insert_parallel_intersection={ctx.props().on_insert_parallel_intersection.clone()}/>
-            },
+            Element::Step(step_props) => {
+              let step_id = StepId(step_props.id.clone());
+              let mut buttons = Vec::<NetButtonProps>::with_capacity(2);
+              buttons.push(NetButtonProps {
+                direction: Some(NetButtonDirection::East),
+                button_text: "P".to_string(),
+                on_click: ctx
+                  .props()
+                  .on_insert_parallel_intersection
+                  .reform(move |_| step_id),
+              });
+
+              if LoopIntersectionBehaviour::should_be_viewed(ctx.props(), step_props.id.clone()) {
+                buttons.push(NetButtonProps {
+                  direction: Some(NetButtonDirection::East),
+                  button_text: "L".to_string(),
+                  on_click: ctx.props().on_insert_loop_intersection.reform(move |_| step_id),
+                });
+            }
+              html! {
+                <Step
+                  key={index.clone()}
+                  id={step_props.id.clone()}
+                  action_name={step_props.action_name.clone()}
+                  buttons={buttons}
+                  on_insert_parallel_intersection={ctx.props().on_insert_parallel_intersection.clone()}
+                  on_insert_loop_intersection={ctx.props().on_insert_loop_intersection.clone()}/>
+            }},
             Element::Transition(transition_props) => {
               let id = transition_props.id.clone();
 

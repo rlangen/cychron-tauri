@@ -18,6 +18,7 @@ use sequence::{
 
 use self::sequence::element::{
   intersection::{
+    loop_intersection_behaviour::LoopIntersectionBehaviour,
     parallel_intersection::{ParallelIntersection, ParallelIntersectionAddErr},
     IntersectionId,
   },
@@ -28,6 +29,7 @@ pub enum GraphcetMsg {
   InsertElementPair(TransitionId),
   InsertParallelIntersection(StepId),
   InsertAlternativeIntersection(TransitionId),
+  InsertLoopIntersection(StepId),
   AttachElementPairToIntersection(IntersectionId),
 }
 
@@ -46,7 +48,9 @@ impl Component for Graphcet {
         Element::Step(StepProps {
           id: UuidService::new_index(),
           action_name: "1HorizontalCylPaP := 1".to_string(),
+          buttons: vec![],
           on_insert_parallel_intersection: Callback::noop(),
+          on_insert_loop_intersection: Callback::noop(),
         }),
         Element::Transition(TransitionProps {
           transitions: "X0".to_string(),
@@ -56,7 +60,9 @@ impl Component for Graphcet {
         Element::Step(StepProps {
           id: UuidService::new_index(),
           action_name: "2VerticalCylPaP := 1".to_string(),
+          buttons: vec![],
           on_insert_parallel_intersection: Callback::noop(),
+          on_insert_loop_intersection: Callback::noop(),
         }),
         Element::Transition(TransitionProps {
           transitions: "X1".to_string(),
@@ -71,11 +77,14 @@ impl Component for Graphcet {
               elements: vec![Element::Step(StepProps {
                 id: UuidService::new_index(),
                 action_name: "3HorizontalCylPaP := 0".to_string(),
+                buttons: vec![],
                 on_insert_parallel_intersection: Callback::noop(),
+                on_insert_loop_intersection: Callback::noop(),
               })],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -83,7 +92,9 @@ impl Component for Graphcet {
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
                   action_name: "4HorizontalCylPaP := 0".to_string(),
+                  buttons: vec![],
                   on_insert_parallel_intersection: Callback::noop(),
+                  on_insert_loop_intersection: Callback::noop(),
                 }),
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
@@ -93,23 +104,29 @@ impl Component for Graphcet {
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
                   action_name: "5VerticalCylPaP := 0".to_string(),
+                  buttons: vec![],
                   on_insert_parallel_intersection: Callback::noop(),
+                  on_insert_loop_intersection: Callback::noop(),
                 }),
               ],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
               elements: vec![Element::Step(StepProps {
                 id: UuidService::new_index(),
                 action_name: "6HorizontalCylPaP := 0".to_string(),
+                buttons: vec![],
                 on_insert_parallel_intersection: Callback::noop(),
+                on_insert_loop_intersection: Callback::noop(),
               })],
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
           ],
@@ -129,7 +146,9 @@ impl Component for Graphcet {
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
                   action_name: "7HorizontalCylPaP := 0".to_string(),
+                  buttons: vec![],
                   on_insert_parallel_intersection: Callback::noop(),
+                  on_insert_loop_intersection: Callback::noop(),
                 }),
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
@@ -140,6 +159,7 @@ impl Component for Graphcet {
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -152,7 +172,9 @@ impl Component for Graphcet {
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
                   action_name: "8HorizontalCylPaP := 0".to_string(),
+                  buttons: vec![],
                   on_insert_parallel_intersection: Callback::noop(),
+                  on_insert_loop_intersection: Callback::noop(),
                 }),
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
@@ -162,7 +184,9 @@ impl Component for Graphcet {
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
                   action_name: "9VerticalCylPaP := 0".to_string(),
+                  buttons: vec![],
                   on_insert_parallel_intersection: Callback::noop(),
+                  on_insert_loop_intersection: Callback::noop(),
                 }),
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
@@ -173,6 +197,7 @@ impl Component for Graphcet {
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
             SequenceProps {
@@ -185,7 +210,9 @@ impl Component for Graphcet {
                 Element::Step(StepProps {
                   id: UuidService::new_index(),
                   action_name: "HorizontalCylPaP := 0".to_string(),
+                  buttons: vec![],
                   on_insert_parallel_intersection: Callback::noop(),
+                  on_insert_loop_intersection: Callback::noop(),
                 }),
                 Element::Transition(TransitionProps {
                   transitions: "X2".to_string(),
@@ -196,6 +223,7 @@ impl Component for Graphcet {
               on_insert_element_pair: Callback::from(|_| ()),
               on_insert_parallel_intersection: Callback::noop(),
               on_insert_alternative_intersection: Callback::noop(),
+              on_insert_loop_intersection: Callback::noop(),
               on_attach_element_pair_to_intersection: Callback::noop(),
             },
           ],
@@ -212,7 +240,9 @@ impl Component for Graphcet {
               Element::Step(StepProps {
                 id: UuidService::new_index(),
                 action_name: "HorizontalCylPaP := 0".to_string(),
+                buttons: vec![],
                 on_insert_parallel_intersection: Callback::noop(),
+                on_insert_loop_intersection: Callback::noop(),
               }),
               Element::Transition(TransitionProps {
                 transitions: "X2".to_string(),
@@ -222,12 +252,15 @@ impl Component for Graphcet {
               Element::Step(StepProps {
                 id: UuidService::new_index(),
                 action_name: "HorizontalCylPaP := 0".to_string(),
+                buttons: vec![],
                 on_insert_parallel_intersection: Callback::noop(),
+                on_insert_loop_intersection: Callback::noop(),
               }),
             ],
             on_insert_element_pair: Callback::from(|_| ()),
             on_insert_parallel_intersection: Callback::noop(),
             on_insert_alternative_intersection: Callback::noop(),
+            on_insert_loop_intersection: Callback::noop(),
             on_attach_element_pair_to_intersection: Callback::noop(),
           }],
           on_attach_element_pair_to_intersection: Callback::noop(),
@@ -235,12 +268,15 @@ impl Component for Graphcet {
         Element::Step(StepProps {
           id: UuidService::new_index(),
           action_name: "HorizontalCylPaP := 0".to_string(),
+          buttons: vec![],
           on_insert_parallel_intersection: Callback::noop(),
+          on_insert_loop_intersection: Callback::noop(),
         }),
       ],
       on_insert_element_pair: Callback::from(|_| ()),
       on_insert_parallel_intersection: Callback::noop(),
       on_insert_alternative_intersection: Callback::noop(),
+      on_insert_loop_intersection: Callback::noop(),
       on_attach_element_pair_to_intersection: Callback::noop(),
     };
     Self {
@@ -271,6 +307,11 @@ impl Component for Graphcet {
           _ctx
           .link()
           .callback(|data|GraphcetMsg::InsertAlternativeIntersection(data))
+        }
+        on_insert_loop_intersection={
+          _ctx
+          .link()
+          .callback(|data|GraphcetMsg::InsertLoopIntersection(data))
         }/>
     }
   }
@@ -288,7 +329,9 @@ impl Component for Graphcet {
           let new_element = Element::Step(StepProps {
             id,
             action_name: "".to_string(),
+            buttons: vec![],
             on_insert_parallel_intersection: Callback::noop(),
+            on_insert_loop_intersection: Callback::noop(),
           });
           self.sequence.elements.insert(pos + 1, new_element);
 
@@ -332,6 +375,10 @@ impl Component for Graphcet {
           Log::error::<Self>("Transition to add alternative intersection not found");
         }
         return should_rerender.0;
+      }
+
+      GraphcetMsg::InsertLoopIntersection(_) => {
+        LoopIntersectionBehaviour::add(&mut self.sequence, StepId(UuidService::new_index())).0
       }
     }
   }

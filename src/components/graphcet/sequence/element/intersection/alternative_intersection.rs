@@ -16,7 +16,7 @@ use crate::components::{
 };
 
 use super::{IntersectionProps, IntersectionType};
-pub mod alternative_intersection_behaviour;
+// pub mod alternative_intersection_behaviour;
 
 #[derive(Clone, PartialEq, Properties, Default, Debug)]
 pub struct AlternativeIntersectionProps {
@@ -31,6 +31,7 @@ pub struct AlternativeIntersectionProps {
 
   pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
   pub on_insert_alternative_intersection: Callback<(BranchIndex, TransitionId)>,
+  pub on_insert_loop_intersection: Callback<(BranchIndex, StepId)>,
 }
 
 pub(crate) struct AlternativeIntersection;
@@ -55,6 +56,7 @@ impl AlternativeIntersection {
             on_insert_parallel_intersection: Callback::noop(),
             on_insert_alternative_intersection: Callback::noop(),
             on_attach_element_pair_to_intersection: Callback::noop(),
+            on_insert_loop_intersection: Callback::noop(),
           },
           SequenceProps {
             elements: vec![
@@ -66,6 +68,7 @@ impl AlternativeIntersection {
             on_insert_parallel_intersection: Callback::noop(),
             on_insert_alternative_intersection: Callback::noop(),
             on_attach_element_pair_to_intersection: Callback::noop(),
+            on_insert_loop_intersection: Callback::noop(),
           },
         ],
         on_attach_element_pair_to_intersection: Callback::noop(),
@@ -148,6 +151,12 @@ impl Component for AlternativeIntersection {
                     .props()
                     .on_insert_alternative_intersection
                     .reform(move |transition_id| (BranchIndex(index), transition_id))
+                  }
+                  on_insert_loop_intersection={
+                    ctx
+                    .props()
+                    .on_insert_loop_intersection
+                    .reform(move |step_id| (BranchIndex(index), step_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
