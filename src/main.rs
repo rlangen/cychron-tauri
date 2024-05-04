@@ -1,5 +1,4 @@
 mod components {
-  pub mod component_tuple_structs;
   pub mod graphcet;
   pub mod net_button;
   pub mod net_user_control;

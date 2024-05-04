@@ -17,26 +17,14 @@ use crate::{
   services::uuid_service::UuidService,
 };
 
-use super::{AddToLeft, IntersectionId, IntersectionProps, IntersectionType};
+use super::{AddToLeft, IntersectionId};
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub(crate) struct ParallelIntersecionProps {
   pub exit_transition: TransitionProps,
   pub id: u128,
   pub branches: Vec<SequenceProps>,
-
-  pub on_prepend_element_pair: Callback<BranchIndex>,
-  pub on_insert_element_pair: Callback<(BranchIndex, TransitionId)>,
-  pub on_append_element_pair: Callback<BranchIndex>,
-
-  pub on_attach_element_pair_to_intersection: Callback<()>,
-  pub on_pass_attach_element_pair_to_intersection: Callback<(BranchIndex, IntersectionId)>,
-
-  pub on_insert_parallel_intersection: Callback<(BranchIndex, StepId)>,
-  pub on_insert_alternative_intersection: Callback<(BranchIndex, TransitionId)>,
-  pub on_insert_loop_intersection: Callback<(BranchIndex, StepId)>,
-
-  pub on_add_branch: Callback<(BranchIndex, AddToLeft)>,
+  pub on_insert_element_pair_after_intersection: Callback<IntersectionId>,
 }
 
 impl Default for ParallelIntersecionProps {
@@ -52,109 +40,47 @@ impl Default for ParallelIntersecionProps {
         on_insert_element_pair: Callback::noop(),
         on_insert_parallel_intersection: Callback::noop(),
         on_insert_alternative_intersection: Callback::noop(),
-        on_attach_element_pair_to_intersection: Callback::noop(),
+        on_insert_element_pair_after_intersection: Callback::noop(),
         on_insert_loop_intersection: Callback::noop(),
       }],
-      on_prepend_element_pair: Callback::noop(),
-      on_append_element_pair: Callback::noop(),
-      on_insert_element_pair: Callback::noop(),
-
-      on_attach_element_pair_to_intersection: Callback::noop(),
-
-      on_insert_parallel_intersection: Callback::noop(),
-      on_insert_alternative_intersection: Callback::noop(),
-      on_insert_loop_intersection: Callback::noop(),
-
-      on_add_branch: Callback::noop(),
-      on_pass_attach_element_pair_to_intersection: Callback::noop(),
+      on_insert_element_pair_after_intersection: Callback::noop(),
     }
   }
 }
 
-pub(crate) struct ParallelIntersection;
-impl ParallelIntersection {
-  pub fn add(
-    sequence: &mut SequenceProps,
-    step_id: StepId,
-  ) -> Result<bool, ParallelIntersectionAddErr> {
-    if sequence.elements.len() < 2 {
-      return Err(ParallelIntersectionAddErr::SequenceTooShort);
-    }
-
-    if let Some(pos) = sequence
-      .elements
-      .iter()
-      .position(|x| step_id.0 == x.get_id())
-    {
-      let triggering_step = sequence.elements.remove(pos);
-      let triggering_transition;
-      match sequence.elements[pos] {
-        Element::Transition(_) => match sequence.elements.remove(pos) {
-          Element::Transition(transition_props) => {
-            triggering_transition = transition_props;
-          }
-          _ => {
-            triggering_transition = TransitionProps::default();
-          }
-        },
-        _ => {
-          triggering_transition = TransitionProps::default();
-        }
-      }
-
-      let new_branch = SequenceProps {
-        elements: vec![triggering_step],
-        on_insert_element_pair: Callback::noop(),
-        on_insert_parallel_intersection: Callback::noop(),
-        on_attach_element_pair_to_intersection: Callback::noop(),
-        on_insert_alternative_intersection: Callback::noop(),
-        on_insert_loop_intersection: Callback::noop(),
-      };
-
-      let new_parallel_intersection = IntersectionProps {
-        id: UuidService::new_index(),
-        intersection_type: IntersectionType::ParallelBranches(triggering_transition),
-        branches: vec![
-          new_branch,
-          SequenceProps {
-            elements: vec![Element::Step(StepProps::default())],
-            on_insert_element_pair: Callback::noop(),
-            on_insert_parallel_intersection: Callback::noop(),
-            on_attach_element_pair_to_intersection: Callback::noop(),
-            on_insert_alternative_intersection: Callback::noop(),
-            on_insert_loop_intersection: Callback::noop(),
-          },
-        ],
-        on_attach_element_pair_to_intersection: Callback::noop(),
-      };
-
-      sequence
-        .elements
-        .insert(pos, Element::Intersection(new_parallel_intersection));
-      Ok(true)
-    } else {
-      Err(ParallelIntersectionAddErr::StepNotFound)
-    }
-  }
+pub(crate) struct ParallelIntersection {
+  branches: Vec<SequenceProps>,
 }
-pub enum ParallelIntersectionAddErr {
-  StepNotFound,
-  SequenceTooShort,
+
+pub enum ParallelIntersectionMsg {
+  // <<<--- ParallelIntersection operations --->>>
+  PrependElementPair(BranchIndex),
+  AppendElementPair(BranchIndex),
+  AddBranch(BranchIndex, AddToLeft),
+  // <<<--- Sequence operations --->>>
+  SeqInsertElementPair(BranchIndex, TransitionId),
+  SeqInsertElementPairAfterIntersection(BranchIndex, IntersectionId),
+  SeqInsertParallelIntersection(BranchIndex, StepId),
+  SeqInsertAlternativeIntersection(BranchIndex, TransitionId),
+  SeqInsertLoopIntersection(BranchIndex, StepId),
 }
 
 impl Component for ParallelIntersection {
-  type Message = ();
+  type Message = ParallelIntersectionMsg;
   type Properties = ParallelIntersecionProps;
 
   fn create(_ctx: &Context<Self>) -> Self {
-    Self {}
+    Self {
+      branches: _ctx.props().branches.clone(),
+    }
   }
 
   fn view(&self, ctx: &Context<Self>) -> Html {
+    let intersection_id = IntersectionId(ctx.props().id);
     html! {<>
       <div class="intersection__parallel-branch-seperation-line"/>
       <div class="intersection__grid-container" key={ctx.props().id.to_string()+"_grid-container"}>
-        {for ctx.props().branches.iter().enumerate().map(|(index, item)| {
+        {for self.branches.iter().enumerate().map(|(index, item)| {
           html! {
             <div class="intersection__grid-item">
               <div class="intersection__content-wrapper">
@@ -167,17 +93,17 @@ impl Component for ParallelIntersection {
                       NetButtonProps {
                         direction: Some(NetButtonDirection::West),
                         button_text: "B".to_string(),
-                        on_click: ctx.props().on_add_branch.reform(move |_| (BranchIndex(index), AddToLeft(true))),
+                        on_click: ctx.link().callback(move |_| ParallelIntersectionMsg::AddBranch(BranchIndex(index), AddToLeft(true))),
                       },
                       NetButtonProps {
                         direction: Some(NetButtonDirection::South),
                         button_text: "S".to_string(),
-                        on_click: ctx.props().on_prepend_element_pair.reform(move |_| BranchIndex(index)),
+                        on_click: ctx.link().callback(move |_| ParallelIntersectionMsg::PrependElementPair(BranchIndex(index))),
                       },
                       NetButtonProps {
                         direction: Some(NetButtonDirection::East),
                         button_text: "B".to_string(),
-                        on_click: ctx.props().on_add_branch.reform(move |_| (BranchIndex(index), AddToLeft(false))),
+                        on_click: ctx.link().callback(move |_| ParallelIntersectionMsg::AddBranch(BranchIndex(index), AddToLeft(false))),
                       },
                     ]}/>
                 </div>
@@ -185,30 +111,26 @@ impl Component for ParallelIntersection {
                   elements={item.elements.clone()}
                   on_insert_element_pair={
                     ctx
-                    .props().on_insert_element_pair
-                    .reform(move |transition_id| (BranchIndex(index), transition_id))}
+                    .link()
+                    .callback(move |transition_id| ParallelIntersectionMsg::SeqInsertElementPair(BranchIndex(index), transition_id))}
+                  on_insert_element_pair_after_intersection={
+                    ctx
+                    .link()
+                    .callback(move |intersection_id| ParallelIntersectionMsg::SeqInsertElementPairAfterIntersection(BranchIndex(index), intersection_id))
+                  }
                   on_insert_parallel_intersection={
                     ctx
-                    .props()
-                    .on_insert_parallel_intersection
-                    .reform(move |step_id| (BranchIndex(index), step_id))}
-                  on_attach_element_pair_to_intersection={
-                    ctx
-                    .props()
-                    .on_pass_attach_element_pair_to_intersection
-                    .reform(move |intersection_id| (BranchIndex(index), intersection_id))
-                  }
+                    .link()
+                    .callback(move |step_id| ParallelIntersectionMsg::SeqInsertParallelIntersection(BranchIndex(index), step_id))}
                   on_insert_alternative_intersection={
                     ctx
-                    .props()
-                    .on_insert_alternative_intersection
-                    .reform(move |transition_id| (BranchIndex(index), transition_id))
+                    .link()
+                    .callback(move |transition_id| ParallelIntersectionMsg::SeqInsertAlternativeIntersection(BranchIndex(index), transition_id))
                   }
                   on_insert_loop_intersection={
                     ctx
-                    .props()
-                    .on_insert_loop_intersection
-                    .reform(move |step_id| (BranchIndex(index), step_id))
+                    .link()
+                    .callback(move |step_id| ParallelIntersectionMsg::SeqInsertLoopIntersection(BranchIndex(index), step_id))
                   }/>
               </div>
               <div class="intersection__vertical-fill-line"/>
@@ -222,7 +144,9 @@ impl Component for ParallelIntersection {
                     NetButtonProps {
                       direction: Some(NetButtonDirection::North),
                       button_text: "S".to_string(),
-                      on_click: ctx.props().on_append_element_pair.reform(move |_| BranchIndex(index)),
+                      on_click: ctx
+                      .link()
+                      .callback(move |_| ParallelIntersectionMsg::AppendElementPair(BranchIndex(index)))
                     },
                   ]}/>
             </div>
@@ -242,10 +166,71 @@ impl Component for ParallelIntersection {
               on_click:
                 ctx
                 .props()
-                .on_attach_element_pair_to_intersection
-                .reform(|_| ())
+                .on_insert_element_pair_after_intersection
+                .reform(move |_| intersection_id)
             },
           ]}/>
     </>}
+  }
+
+  fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+    match msg {
+      // ---------------------------------------------
+      // <<<--- ParallelIntersection operations --->>>
+      // ---------------------------------------------
+      ParallelIntersectionMsg::AddBranch(branch_index, add_to_left) => {
+        let new_sequence = SequenceProps {
+          elements: vec![Element::Step(StepProps::default())],
+          on_insert_element_pair: Callback::noop(),
+          on_insert_parallel_intersection: Callback::noop(),
+          on_insert_alternative_intersection: Callback::noop(),
+          on_insert_loop_intersection: Callback::noop(),
+          on_insert_element_pair_after_intersection: Callback::noop(),
+        };
+
+        if add_to_left.0 {
+          self.branches.insert(branch_index.0, new_sequence);
+        } else {
+          self.branches.insert(branch_index.0 + 1, new_sequence);
+        }
+        true
+      }
+      ParallelIntersectionMsg::PrependElementPair(branch_index) => {
+        self.branches[branch_index.0]
+          .elements
+          .insert(0, Element::Step(StepProps::default()));
+        if self.branches[branch_index.0].elements.len() > 1 {
+          self.branches[branch_index.0]
+            .elements
+            .insert(1, Element::Transition(TransitionProps::default()));
+        }
+        true
+      }
+      ParallelIntersectionMsg::AppendElementPair(branch_index) => {
+        Sequence::append_element_pair_to_intersection(&mut self.branches[branch_index.0])
+      }
+      // ---------------------------------
+      // <<<--- Sequence operations --->>>
+      // ---------------------------------
+      ParallelIntersectionMsg::SeqInsertElementPair(branch_index, transition_id) => {
+        Sequence::insert_element_pair(&mut self.branches[branch_index.0], transition_id)
+      }
+      ParallelIntersectionMsg::SeqInsertElementPairAfterIntersection(
+        branch_index,
+        intersection_id,
+      ) => Sequence::insert_element_pair_after_intersection(
+        &mut self.branches[branch_index.0],
+        intersection_id,
+      ),
+      ParallelIntersectionMsg::SeqInsertParallelIntersection(branch_index, step_id) => {
+        Sequence::insert_parallel_intersection(&mut self.branches[branch_index.0], step_id)
+      }
+      ParallelIntersectionMsg::SeqInsertAlternativeIntersection(branch_index, transition_id) => {
+        Sequence::insert_alternative_intersection(&mut self.branches[branch_index.0], transition_id)
+      }
+      ParallelIntersectionMsg::SeqInsertLoopIntersection(branch_index, step_id) => {
+        Sequence::insert_loop_intersection(&mut self.branches[branch_index.0], step_id)
+      }
+    }
   }
 }
