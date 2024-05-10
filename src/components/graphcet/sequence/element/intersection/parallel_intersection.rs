@@ -19,7 +19,8 @@ use crate::{
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub(crate) struct ParallelIntersecionProps {
-  pub exit_transition: TransitionProps,
+  /// If a alternative intersection follows the parallel intersection, an exit transition is forbidden.
+  pub exit_transition: Option<TransitionProps>,
   pub id: u128,
   pub branches: Vec<SequenceProps>,
   pub on_insert_element_pair_after_intersection: Callback<IntersectionId>,
@@ -28,7 +29,7 @@ pub(crate) struct ParallelIntersecionProps {
 impl Default for ParallelIntersecionProps {
   fn default() -> Self {
     Self {
-      exit_transition: TransitionProps::default(),
+      exit_transition: Option::Some(TransitionProps::default()),
       id: UuidService::new_index(),
       branches: vec![SequenceProps {
         elements: vec![
@@ -153,21 +154,45 @@ impl Component for ParallelIntersection {
           }
         })}
       </div>
-      <div class="intersection__parallel-branch-seperation-line"/>
-        <Transition
-          transitions={ctx.props().exit_transition.transitions.clone()}
-          id={ctx.props().exit_transition.id.clone()}
-          buttons={vec![
-            NetButtonProps {
-              direction: Some(NetButtonDirection::South),
-              button_text: "S".to_string(),
-              on_click:
-                ctx
-                .props()
-                .on_insert_element_pair_after_intersection
-                .reform(move |_| intersection_id)
-            },
-          ]}/>
+      <div class="intersection__parallel-branch-seperation-line"/>{
+        match &ctx.props().exit_transition {
+          Some(exit_transition) => html! {
+            <Transition
+              transitions={exit_transition.clone()}
+              id={exit_transition.id.clone()}
+              buttons={vec![
+                NetButtonProps {
+                  direction: Some(NetButtonDirection::South),
+                  button_text: "S".to_string(),
+                  on_click:
+                    ctx
+                    .props()
+                    .on_insert_element_pair_after_intersection
+                    .reform(move |_| intersection_id)
+                },
+              ]}/>
+          },
+          None => html! {
+            <div class="
+              path__short 
+              path__short--margin-left 
+              intersection__entry-menu">
+              <NetUserControl
+                buttons={vec![
+                  NetButtonProps {
+                    direction: Some(NetButtonDirection::South),
+                    button_text: "S".to_string(),
+                    on_click:
+                      ctx
+                      .props()
+                      .on_insert_element_pair_after_intersection
+                      .reform(move |_| intersection_id)
+                  },
+                ]}/>
+            </div>
+          }
+        }
+      }
     </>}
   }
 

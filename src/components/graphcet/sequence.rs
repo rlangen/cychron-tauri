@@ -1,14 +1,17 @@
 use crate::{
-  components::graphcet::sequence::element::{
-    intersection::{
-      alternative_intersection::AlternativeIntersection, loop_intersection::LoopIntersection,
-      Branches, Intersection, IntersectionId, IntersectionProps, IntersectionType, TransitionId,
+  components::{
+    graphcet::sequence::element::{
+      intersection::{
+        alternative_intersection::AlternativeIntersection, loop_intersection::LoopIntersection,
+        parallel_intersection::ParallelIntersection, Branches, IntersectionId, IntersectionProps,
+        IntersectionType, TransitionId,
+      },
+      step::{Step, StepProps},
+      transition::{Transition, TransitionProps},
+      Element, StepId,
     },
-    step::{Step, StepProps},
-    transition::{Transition, TransitionProps},
-    Element, StepId,
+    net_button::{NetButtonDirection, NetButtonProps},
   },
-  components::net_button::{NetButtonDirection, NetButtonProps},
   services::{logging_service::Log, uuid_service::UuidService},
 };
 use std::vec;
@@ -122,7 +125,6 @@ impl Sequence {
           Branches(vec![left_branch, right_branch]),
           triggering_transition,
         ),
-        on_insert_element_pair_after_intersection: Callback::noop(),
       };
 
       sequence
@@ -171,7 +173,6 @@ impl Sequence {
           left_branch,
           right_branch,
         ])),
-        on_insert_element_pair_after_intersection: Callback::noop(),
       };
 
       sequence
@@ -217,8 +218,6 @@ impl Sequence {
           TransitionProps::default(),
           exit_transition,
         ),
-
-        on_insert_element_pair_after_intersection: Callback::noop(),
       });
 
       sequence.elements.insert(pos, new_loop_intersection);
@@ -320,14 +319,51 @@ impl Component for Sequence {
               }
             },
             Element::Intersection(intersection_props) => html! {
-              <Intersection
-                intersection_type={intersection_props.intersection_type.clone()}
-                id={intersection_props.id.clone()}
-                on_insert_element_pair_after_intersection={
-                  ctx
-                  .props()
-                  .on_insert_element_pair_after_intersection
-                  .reform(|intersection_id|(intersection_id))}/>
+              <div class= "intersection__top-level-container">
+                {match &intersection_props.intersection_type {
+                  IntersectionType::ParallelBranches(in_branches, exit_transition) => {
+                    let intersection_id = IntersectionId(intersection_props.id);
+
+                    // If the next element is an alternative intersection, don't add an exit transition
+                    let exit_transition = match ctx.props().elements.get(index + 1){
+                      Some(Element::Intersection(intersection_props)) =>{
+                        match intersection_props.intersection_type {
+                          IntersectionType::AlternativeBranches(_) => {
+                            None
+                          },
+                          _ => Some(exit_transition.clone()),
+                        }
+                      }
+                      _ => Some(exit_transition.clone()),
+                    };
+
+                    html! {
+                      <ParallelIntersection
+                        branches={in_branches.0.clone()}
+                        exit_transition={exit_transition.clone()}
+                        id={UuidService::new_index()}
+                        on_insert_element_pair_after_intersection={
+                          ctx
+                          .props()
+                          .on_insert_element_pair_after_intersection
+                          .reform(move |_| intersection_id)
+                        }/>
+                    }
+                  },
+                  IntersectionType::AlternativeBranches(in_branches) => html! {
+                    <AlternativeIntersection
+                      branches={in_branches.0.clone()}
+                      id={UuidService::new_index()}/>
+                  },
+                  IntersectionType::LoopBranches(sequence, continue_transition, exit_transition) => html! {
+                    <LoopIntersection
+                      sequence={sequence.clone()}
+                      continue_transition={continue_transition.clone()}
+                      exit_transition={exit_transition.clone()}
+                      id={UuidService::new_index()}/>
+                  },
+                }}
+            </div>
             },
           }
         })}

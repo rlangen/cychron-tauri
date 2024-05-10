@@ -1,17 +1,6 @@
-use crate::{
-  components::graphcet::sequence::{
-    element::{
-      intersection::{
-        alternative_intersection::AlternativeIntersection, loop_intersection::LoopIntersection,
-        parallel_intersection::ParallelIntersection,
-      },
-      step::StepProps,
-      transition::TransitionProps,
-      Element,
-    },
-    SequenceProps,
-  },
-  services::uuid_service::UuidService,
+use crate::components::graphcet::sequence::{
+  element::{step::StepProps, transition::TransitionProps, Element},
+  SequenceProps,
 };
 use yew::prelude::*;
 
@@ -33,8 +22,6 @@ pub struct Branches(pub Vec<SequenceProps>);
 pub struct IntersectionProps {
   pub intersection_type: IntersectionType,
   pub id: u128,
-
-  pub on_insert_element_pair_after_intersection: Callback<IntersectionId>,
 }
 impl Default for IntersectionType {
   fn default() -> Self {
@@ -76,46 +63,3 @@ pub struct TransitionId(pub u128);
 pub struct AddToLeft(pub bool);
 #[derive(Copy, Clone)]
 pub struct IntersectionId(pub u128);
-
-pub struct Intersection {}
-
-impl Component for Intersection {
-  type Message = ();
-  type Properties = IntersectionProps;
-
-  fn create(_ctx: &Context<Self>) -> Self {
-    Self {}
-  }
-  fn view(&self, ctx: &Context<Self>) -> Html {
-    let intersection_id = IntersectionId(ctx.props().id);
-    html! {
-      <div class= "intersection__top-level-container">
-      {match &ctx.props().intersection_type {
-        IntersectionType::ParallelBranches(in_branches, exit_transition) => html! {
-          <ParallelIntersection
-            branches={in_branches.0.clone()}
-            exit_transition={exit_transition.clone()}
-            id={UuidService::new_index()}
-            on_insert_element_pair_after_intersection={
-              ctx
-              .props()
-              .on_insert_element_pair_after_intersection
-              .reform(move |_| intersection_id)
-            }/>
-        },
-        IntersectionType::AlternativeBranches(in_branches) => html! {
-          <AlternativeIntersection
-            branches={in_branches.0.clone()}
-            id={UuidService::new_index()}/>
-        },
-        IntersectionType::LoopBranches(sequence, continue_transition, exit_transition) => html! {
-          <LoopIntersection
-            sequence={sequence.clone()}
-            continue_transition={continue_transition.clone()}
-            exit_transition={exit_transition.clone()}
-            id={UuidService::new_index()}/>
-        },
-      }}
-    </div>}
-  }
-}

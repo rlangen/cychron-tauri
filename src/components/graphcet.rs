@@ -122,7 +122,6 @@ impl Component for Graphcet {
             ]),
             TransitionProps::default(),
           ),
-          on_insert_element_pair_after_intersection: Callback::noop(),
         }),
         Element::Intersection(IntersectionProps {
           id: UuidService::new_index(),
@@ -218,7 +217,6 @@ impl Component for Graphcet {
               on_insert_element_pair_after_intersection: Callback::noop(),
             },
           ])),
-          on_insert_element_pair_after_intersection: Callback::noop(),
         }),
         Element::Intersection(IntersectionProps {
           id: UuidService::new_index(),
@@ -248,7 +246,6 @@ impl Component for Graphcet {
             TransitionProps::default(),
             TransitionProps::default(),
           ),
-          on_insert_element_pair_after_intersection: Callback::noop(),
         }),
         Element::Step(StepProps {
           id: UuidService::new_index(),
