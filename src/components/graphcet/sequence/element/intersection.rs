@@ -1,25 +1,23 @@
-use yew::prelude::*;
-
-use super::transition::TransitionProps;
 use crate::{
   components::graphcet::sequence::{
-    element::{step::StepProps, Element},
+    element::{
+      intersection::{
+        alternative_intersection::AlternativeIntersection, loop_intersection::LoopIntersection,
+        parallel_intersection::ParallelIntersection,
+      },
+      step::StepProps,
+      transition::TransitionProps,
+      Element,
+    },
     SequenceProps,
   },
   services::uuid_service::UuidService,
 };
-
-pub(crate) mod parallel_intersection;
-use parallel_intersection::ParallelIntersection;
+use yew::prelude::*;
 
 pub(crate) mod alternative_intersection;
-use alternative_intersection::AlternativeIntersection;
-
-mod loop_intersection;
-use loop_intersection::LoopIntersection;
-
-pub(crate) mod alternative_intersection_behaviour;
-pub(crate) mod loop_intersection_behaviour;
+pub(crate) mod loop_intersection;
+pub(crate) mod parallel_intersection;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum IntersectionType {

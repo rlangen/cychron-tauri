@@ -2,6 +2,7 @@ use yew::prelude::*;
 
 use crate::components::{
   graphcet::sequence::{
+    self,
     element::{
       intersection::{AddToLeft, BranchIndex, IntersectionId, TransitionId},
       step::StepProps,
@@ -20,10 +21,6 @@ pub struct AlternativeIntersectionProps {
   pub branches: Vec<SequenceProps>,
 }
 
-pub(crate) struct AlternativeIntersection {
-  branches: Vec<SequenceProps>,
-}
-
 pub enum AlternativeIntersectionMsg {
   // <<<--- AlternativeIntersection operations --->>>
   AddBranch(BranchIndex, AddToLeft),
@@ -36,9 +33,36 @@ pub enum AlternativeIntersectionMsg {
   SeqInsertLoopIntersection(BranchIndex, StepId),
 }
 
+pub(crate) struct AlternativeIntersection {
+  branches: Vec<SequenceProps>,
+}
+impl AlternativeIntersection {
+  pub fn is_insertable(sequence: &sequence::SequenceProps, triggering_element: u128) -> bool {
+    if let Some(pos) = sequence
+      .elements
+      .iter()
+      .position(|x| triggering_element == x.get_id())
+    {
+      match sequence.elements.get(pos) {
+        Some(Element::Transition(_)) => {}
+        _ => return false,
+      }
+      match sequence.elements.get(pos + 1) {
+        Some(Element::Step(_)) => {}
+        _ => return false,
+      }
+      match sequence.elements.get(pos + 2) {
+        Some(Element::Transition(_)) => {}
+        _ => return false,
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
 impl Component for AlternativeIntersection {
   type Message = AlternativeIntersectionMsg;
-
   type Properties = AlternativeIntersectionProps;
 
   fn create(_ctx: &yew::prelude::Context<Self>) -> Self {

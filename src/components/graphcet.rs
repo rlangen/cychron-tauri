@@ -1,22 +1,19 @@
+use crate::{
+  components::graphcet::sequence::{
+    element::{
+      intersection::{Branches, IntersectionId},
+      intersection::{IntersectionProps, IntersectionType, TransitionId},
+      step::StepProps,
+      transition::TransitionProps,
+      Element, StepId,
+    },
+    Sequence, SequenceProps,
+  },
+  services::uuid_service::UuidService,
+};
 use yew::prelude::*;
 
-use crate::services::uuid_service::UuidService;
-
 mod sequence;
-use sequence::{
-  element::{
-    intersection::{IntersectionProps, IntersectionType, TransitionId},
-    step::StepProps,
-    transition::TransitionProps,
-    Element,
-  },
-  Sequence, SequenceProps,
-};
-
-use self::sequence::element::{
-  intersection::{Branches, IntersectionId},
-  StepId,
-};
 
 pub enum GraphcetMsg {
   InsertElementPair(TransitionId),

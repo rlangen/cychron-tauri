@@ -1,32 +1,20 @@
+use crate::{
+  components::graphcet::sequence::element::{
+    intersection::{
+      alternative_intersection::AlternativeIntersection, loop_intersection::LoopIntersection,
+      Branches, Intersection, IntersectionId, IntersectionProps, IntersectionType, TransitionId,
+    },
+    step::{Step, StepProps},
+    transition::{Transition, TransitionProps},
+    Element, StepId,
+  },
+  components::net_button::{NetButtonDirection, NetButtonProps},
+  services::{logging_service::Log, uuid_service::UuidService},
+};
 use std::vec;
-
 use yew::{html::IntoPropValue, prelude::*};
 
 pub mod element;
-use element::{
-  intersection::{Intersection, IntersectionId, TransitionId},
-  step::Step,
-  transition::Transition,
-  Element,
-};
-
-use crate::{
-  components::{
-    graphcet::sequence::element::intersection::{
-      alternative_intersection_behaviour::AlternativeIntersectionBehaviour,
-      loop_intersection_behaviour::LoopIntersectionBehaviour,
-    },
-    net_button::{NetButtonDirection, NetButtonProps},
-  },
-  services::{logging_service::Log, uuid_service::UuidService},
-};
-
-use self::element::{
-  intersection::{Branches, IntersectionProps, IntersectionType},
-  step::StepProps,
-  transition::TransitionProps,
-  StepId,
-};
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub struct SequenceProps {
@@ -292,7 +280,7 @@ impl Component for Sequence {
                   .reform(move |_| step_id),
               });
 
-              if LoopIntersectionBehaviour::should_be_viewed(ctx.props(), step_props.id.clone()) {
+              if LoopIntersection::is_insertable(ctx.props(), step_props.id.clone()) {
                 buttons.push(NetButtonProps {
                   direction: Some(NetButtonDirection::East),
                   button_text: "L".to_string(),
@@ -317,7 +305,7 @@ impl Component for Sequence {
                 button_text: "S".to_string(),
                 on_click: ctx.props().on_insert_element_pair.reform(move |_| TransitionId(id)),
               });
-              if AlternativeIntersectionBehaviour::should_be_viewed(ctx.props(), id) {
+              if AlternativeIntersection::is_insertable(ctx.props(), id) {
                 buttons.push(NetButtonProps {
                   direction: Some(NetButtonDirection::NorthEast),
                   button_text: "A".to_string(),

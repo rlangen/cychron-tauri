@@ -4,7 +4,7 @@ use crate::{
   components::{
     graphcet::sequence::{
       element::{
-        intersection::{BranchIndex, TransitionId},
+        intersection::{AddToLeft, BranchIndex, IntersectionId, TransitionId},
         step::StepProps,
         transition::{Transition, TransitionProps},
         Element, StepId,
@@ -16,8 +16,6 @@ use crate::{
   },
   services::uuid_service::UuidService,
 };
-
-use super::{AddToLeft, IntersectionId};
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub(crate) struct ParallelIntersecionProps {

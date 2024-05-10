@@ -1,10 +1,9 @@
-use web_sys::HtmlTextAreaElement;
-use yew::{html::IntoPropValue, prelude::*};
-
 use crate::{
   components::{net_button::NetButtonProps, net_user_control::NetUserControl},
   services::uuid_service::UuidService,
 };
+use web_sys::HtmlTextAreaElement;
+use yew::{html::IntoPropValue, prelude::*};
 
 pub struct Transition {
   transitions: String,
@@ -18,7 +17,6 @@ pub struct TransitionProps {
 }
 impl IntoPropValue<String> for TransitionProps {
   fn into_prop_value(self) -> String {
-    // Convert self into a Vec<sequence::Element> here
     self.transitions
   }
 }

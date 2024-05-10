@@ -42,10 +42,6 @@ impl Default for LoopIntersectionProps {
   }
 }
 
-pub(super) struct LoopIntersection {
-  sequence: SequenceProps,
-}
-
 pub enum LoopIntersectionMsg {
   // <<<--- LoopIntersection operations --->>>
   PrependElementPair,
@@ -57,6 +53,30 @@ pub enum LoopIntersectionMsg {
   SeqInsertLoopIntersection(StepId),
 }
 
+pub(crate) struct LoopIntersection {
+  sequence: SequenceProps,
+}
+impl LoopIntersection {
+  pub fn is_insertable(sequence: &SequenceProps, triggering_element: u128) -> bool {
+    if let Some(pos) = sequence
+      .elements
+      .iter()
+      .position(|x| triggering_element == x.get_id())
+    {
+      match sequence.elements.get(pos) {
+        Some(Element::Step(_)) => {}
+        _ => return false,
+      }
+      match sequence.elements.get(pos + 1) {
+        Some(Element::Transition(_)) => {}
+        _ => return false,
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
 impl Component for LoopIntersection {
   type Message = LoopIntersectionMsg;
 

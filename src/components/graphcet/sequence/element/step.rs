@@ -1,6 +1,3 @@
-use web_sys::HtmlTextAreaElement;
-use yew::prelude::*;
-
 use crate::{
   components::{
     graphcet::sequence::element::StepId, net_button::NetButtonProps,
@@ -8,6 +5,8 @@ use crate::{
   },
   services::uuid_service::UuidService,
 };
+use web_sys::HtmlTextAreaElement;
+use yew::prelude::*;
 
 pub struct Step {
   action_name: String,
